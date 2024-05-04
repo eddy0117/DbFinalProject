@@ -9,12 +9,14 @@ db = SQLAlchemy(app)
 
 
 class Song(db.Model):
-    __tablename__ = 'Song'
+    __tablename__ = 'song'
     SongID = db.Column(db.Integer, primary_key=True)
     Title = db.Column(db.String(80), unique=False, nullable=False)
     Album = db.Column(db.String(80), unique=False, nullable=False)
     ReleaseYear = db.Column(db.Integer, unique=False, nullable=False)
     Duration = db.Column(db.Integer, unique=False, nullable=False)
+
+    SongList = db.relationship('SongList', backref='song')
 
     def __init__(self, Title, Album, ReleaseYear, Duration):
         self.Title = Title
@@ -22,23 +24,55 @@ class Song(db.Model):
         self.ReleaseYear = ReleaseYear
         self.Duration = Duration
 
-    # def __repr__(self):
-    #     return '<User %r>' % self.username
+class Artist(db.Model):
+    __tablename__ = 'artist'
+    SongID = db.Column(db.Integer, db.ForeignKey('song.SongID'), primary_key=True)
+    Name = db.Column(db.String(80), primary_key=True)
+    
+    Song = db.relationship('Song', backref='artist')
+
+    def __init__(self, SongID, Name):
+        self.Name = Name
+        self.SongID = SongID
     
 class User(db.Model):
-    __tablename__ = 'User'
+    __tablename__ = 'user'
     UserID = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), unique=False, nullable=False)
     RegistrationDate = db.Column(db.String(120), unique=False, nullable=False)
 
+    Playlist = db.relationship('Playlist', backref='user')
 
     def __init__(self, username, password, RegistrationDate):
         self.username = username
         self.password = password
         self.RegistrationDate = RegistrationDate
-    # def __repr__(self):
-    #     return '<User %r>' % self.username
+
+class Playlist(db.Model):
+    __tablename__ = 'playlist'
+    PlaylistID = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
+    CreationDate = db.Column(db.String(20), unique=False, nullable=False)
+
+    SongList  = db.relationship('Songlist', backref='playlist')
+    User = db.relationship('User', backref='playlist')
+
+    def __init__(self, username, CreationDate):
+        self.username = username
+        self.CreationDate = CreationDate
+
+class SongList(db.Model):
+    __tablename__ = 'songlist'
+    PlaylistID = db.Column(db.Integer, db.ForeignKey('playlist.PlaylistID'), primary_key=True)
+    SongID = db.Column(db.Integer, db.ForeignKey('song.SongID'), primary_key=True)
+
+    Playlist = db.relationship('Playlist', backref='songlist')
+    Song = db.relationship('Song', backref='songlist')
+
+    def __init__(self, PlaylistID, SongID):
+        self.PlaylistID = PlaylistID
+        self.SongID = SongID
 
 if __name__ == '__main__':
     with app.app_context():
