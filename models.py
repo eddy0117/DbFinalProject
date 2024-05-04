@@ -16,7 +16,7 @@ class Song(db.Model):
     ReleaseYear = db.Column(db.Integer, unique=False, nullable=False)
     Duration = db.Column(db.Integer, unique=False, nullable=False)
 
-    SongList = db.relationship('SongList', backref='song')
+    # SongList = db.relationship('SongList', backref='song')
 
     def __init__(self, Title, Album, ReleaseYear, Duration):
         self.Title = Title
@@ -28,8 +28,8 @@ class Artist(db.Model):
     __tablename__ = 'artist'
     SongID = db.Column(db.Integer, db.ForeignKey('song.SongID'), primary_key=True)
     Name = db.Column(db.String(80), primary_key=True)
-    
-    Song = db.relationship('Song', backref='artist')
+
+    # Song = db.relationship('Song', backref='artist')
 
     def __init__(self, SongID, Name):
         self.Name = Name
@@ -42,7 +42,7 @@ class User(db.Model):
     password = db.Column(db.String(120), unique=False, nullable=False)
     RegistrationDate = db.Column(db.String(120), unique=False, nullable=False)
 
-    Playlist = db.relationship('Playlist', backref='user')
+    # Playlist = db.relationship('Playlist', backref='user')
 
     def __init__(self, username, password, RegistrationDate):
         self.username = username
@@ -55,8 +55,8 @@ class Playlist(db.Model):
     username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
     CreationDate = db.Column(db.String(20), unique=False, nullable=False)
 
-    SongList  = db.relationship('Songlist', backref='playlist')
-    User = db.relationship('User', backref='playlist')
+    # SongList  = db.relationship('SongList', backref='playlist')
+    # User = db.relationship('User', backref='playlist')
 
     def __init__(self, username, CreationDate):
         self.username = username
@@ -67,8 +67,8 @@ class SongList(db.Model):
     PlaylistID = db.Column(db.Integer, db.ForeignKey('playlist.PlaylistID'), primary_key=True)
     SongID = db.Column(db.Integer, db.ForeignKey('song.SongID'), primary_key=True)
 
-    Playlist = db.relationship('Playlist', backref='songlist')
-    Song = db.relationship('Song', backref='songlist')
+    # Playlist = db.relationship('Playlist', backref='songlist')
+    # Song = db.relationship('Song', backref='songlist')
 
     def __init__(self, PlaylistID, SongID):
         self.PlaylistID = PlaylistID
