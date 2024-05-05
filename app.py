@@ -1,22 +1,50 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
-from models import db, Song, User, Playlist 
-
+from flask import Flask, render_template, url_for, redirect, request, session
 app = Flask(__name__)
+from models import db, Song, User, Playlist 
+from methods import *
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+db.init_app(app)
+
+
+
+@app.route('/', methods=['POST', 'GET'])
+def index():
+    return render_template('index.html')
+    
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    print(1)
+    if request.method == 'POST':
+        
+        data = request.json
+        username = data['username']
+        password = data['password']
+        add_user(db, username, password)
+    
+
+        print(username, password)
+        return 'singup'
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        
+        data = request.json
+        username = data['username']
+        password = data['password']
+        print(username, password)
+        return 'login'
+    #     user = User.query.filter_by(username=username).first()
+    #     if user and user.password == password:
+    #         session['username'] = username
+    #         return redirect(url_for('dashboard'))
+    #     else:
+    #         return redirect(url_for('login'))
+    # return render_template('login.html')
+    
 
 if __name__ == "__main__":
-    with app.app_context():
-        song2 = Song(Title='Song2', Album='Album2', ReleaseYear=2020, Duration=200)
-        db.session.add(song2)
-        song3 = Song(Title='Song3', Album='Album3', ReleaseYear=2020, Duration=200)
-        db.session.add(song3)
-        user = User(username='user1', password='password1', RegistrationDate='2020-12-12')
-        db.session.add(user)
-        db.session.commit()
-        p = Playlist(username='user12', CreationDate='2020-12-12')
-        db.session.add(p)
-        db.session.commit()
+    
+    app.run(debug=True)
