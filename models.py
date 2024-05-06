@@ -52,15 +52,17 @@ class User(db.Model):
 class Playlist(db.Model):
     __tablename__ = 'playlist'
     PlaylistID = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
+    UserID = db.Column(db.Integer, db.ForeignKey('user.UserID'), nullable=False)
+    PlaylistName = db.Column(db.String(80), unique=False, nullable=False)
     CreationDate = db.Column(db.String(20), unique=False, nullable=False)
 
     # SongList  = db.relationship('SongList', backref='playlist')
     # User = db.relationship('User', backref='playlist')
 
-    def __init__(self, username, CreationDate):
-        self.username = username
+    def __init__(self, UserID, CreationDate, PlaylistName):
+        self.UserID = UserID
         self.CreationDate = CreationDate
+        self.PlaylistName = PlaylistName
 
 class SongList(db.Model):
     __tablename__ = 'songlist'

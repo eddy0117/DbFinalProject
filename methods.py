@@ -35,9 +35,22 @@ def add_user(db : SQLAlchemy, username, password):
     db.session.add(user)
     db.session.commit()
 
-def add_playlist(db : SQLAlchemy, username):
+def is_user_exist(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and user.password == password:
+        return user.UserID
+    return False
+
+def get_user_playlist(db : SQLAlchemy, UserID):
+    playlist = Playlist.query.filter_by(UserID=UserID)
+    playlist_pkg = {}
+    for it in playlist:
+        playlist_pkg[str(it.PlaylistID)] = it.PlaylistName
+    return playlist_pkg
+
+def add_playlist(db : SQLAlchemy, UserID, PlaylistName):
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-    playlist = Playlist(username=username, CreationDate=current_time)
+    playlist = Playlist(UserID=UserID, CreationDate=current_time, PlaylistName=PlaylistName)
     db.session.add(playlist)
     db.session.commit()
 
