@@ -8,6 +8,8 @@ import time
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # db = SQLAlchemy(app)
 
+def to_dict(self):
+    return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 def add_song(db : SQLAlchemy, Title, Album, ReleaseYear, Duration, *ArtistName):
     song = Song(Title=Title, Album=Album, ReleaseYear=ReleaseYear, Duration=Duration)
@@ -28,6 +30,20 @@ def del_song(db : SQLAlchemy, SongID):
     song = Song.query.filter_by(SongID=SongID).first()
     db.session.delete(song)
     db.session.commit()
+
+def search_song(db : SQLAlchemy, searchQuery):
+    song = Song.query.filter(Song.Title.ilike(f'%{searchQuery}%')).all()
+    song_query = []
+    for it in song:
+        song_data = to_dict(it)
+        
+        artist = Artist.query.filter_by(SongID=it.SongID)
+        song_data['Artist'] = artist[0].Name
+        for art in artist[1:]:
+            song_data['Artist'] += f', {art.Name}'
+        song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
+        song_query.append(song_data)
+    return song_query 
 
 def add_user(db : SQLAlchemy, username, password):
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -63,9 +79,15 @@ def del_playlist(db : SQLAlchemy, PlaylistID):
     db.session.delete(playlist)
     db.session.commit()
 
+def rename_playlist(db : SQLAlchemy, PlaylistID, PlaylistName):
+    playlist = Playlist.query.filter_by(PlaylistID=PlaylistID).first()
+    print(PlaylistID, playlist)
+    playlist.PlaylistName = PlaylistName
+    db.session.commit()
+
 def add_song_to_playlist(db : SQLAlchemy, PlaylistID, SongID):
-    song = SongList(PlaylistID=PlaylistID, SongID=SongID)
-    db.session.add(song)
+    songlist = SongList(PlaylistID=PlaylistID, SongID=SongID)
+    db.session.add(songlist)
     db.session.commit()
 
 def del_song_from_playlist(db : SQLAlchemy, PlaylistID, SongID):

@@ -24,7 +24,12 @@
             }
             .fixed-width {
                 width: 100%;
-                max-width: 5000px;
+                max-width: 1000px;
+                margin: auto;
+            }
+            .fixed-height {
+                height: 100%;
+                max-height: 1000px;
                 margin: auto;
             }
             .delete-btn {
@@ -38,26 +43,55 @@
         </style>
     </head>
     <body>
-        <button type="button" class="btn-primary" data-bs-toggle="modal" data-bs-target="addPlaylistModal" data-bs-dismiss="">新增播放清單</button>
+        
+            
 
-        <!-- jinja2創建播放清單列表 -->
-        <div class="container center">
-            <!-- <div class="row justify-content-center"> -->
-            {% if session_data.isLogin %}
-            <ul class="list-group fixed-width">         
-                {% for k, v in session_data.playlist.items() %}     
-                <li class="list-group-item">     
-                    <div class="list-item">
-                        <h5 class="list-item">{{ v }}</h5>
+        
+        <div class="container">
+           
+            <div class="row fixed-width mt-5">
+                <div class="col">
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="searchForm">
+                                <label for="search" class="form-label" style="font-size: large;">搜尋歌曲</label>
+                                <input type="text" class="form-control" id="searchInput">
+                                <button type="submit" class="btn btn-success mt-3">搜尋</button>
+                            </form>
+                    </div>
+                </div>
                 
-                        <button type="button" class="btn btn-danger list-item delete-btn" onclick="deletePlaylist('{{ k }}')">刪除</button>
-                    </div> 
-                </li>  
-                {% endfor %}
-            </ul>
-            {% endif %}      
-            <!-- </div>      -->
+            </div>
+            <!-- jinja2創建播放清單列表 -->
+            <div class="row fixed-width mt-5">
+                <div class="col">
+                    <button type="button" class="btn btn-primary" style="width: 120px; font-size: 14px;" data-bs-toggle="modal" data-bs-target="#addPlistModal">新增播放清單</button>
+                    {% if session_data.isLogin %}
+                    
+                    <ul class="list-group mt-3">         
+                        {% for k, v in session_data.playlist.items() %}     
+                        <li class="list-group-item">     
+                            <div class="list-item">
+                                <h5 class="list-item">{{ v }}</h5>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-primary" style="border-color:darkorange; background-color:darkorange;" data-bs-toggle="modal" data-bs-target="#rnPlistModal" onclick="savePlaylistID('{{ k }}')">重新命名</button>
+                                    <button type="button" class="btn btn-danger" onclick="deletePlaylist('{{ k }}')">刪除</button>
+                                </div>
+                                
+                        </li>  
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                    
+            </div>
+              
+         
         </div>
+
+      
+        
         
     
 
@@ -119,6 +153,48 @@
             </div>
         </div>
 
+        <!-- 新增播放清單訊息框 -->
+        <div class="modal fade" id="addPlistModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addPlistModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">新增播放清單</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addPlistForm">
+                            <div class="mb-3">
+                
+                                <input type="text" class="form-control" id="Plist-name">
+                            </div>
+                            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">確定</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 改名訊息框 -->
+        <div class="modal fade" id="rnPlistModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="rnPlistModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">更改播放清單名稱</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="rnPlistForm">
+                            <div class="mb-3">
+                
+                                <input type="text" class="form-control" id="rnPlist-name">
+                            </div>
+                            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">確定</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- 註冊成功訊息框 -->
         <div class="modal fade" id="SsuccessModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="SsuccessModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -157,16 +233,14 @@
                     type: 'POST',
                     url: '/getSession',
                     success: function(response) {
-                        console.log(response);
-                        // console.log(sessionStorage.getItem('isLogin'));
-                        // console.log(response.session.isLogin);
+                        console.log(response.session);
+                        sessionStorage.setItem('userID', JSON.stringify(response.session.userID));
+                       
+    
                         if (response.session.isLogin == true) {
-                            // sessionStorage.setItem('isLogin', response.isLogin);
-                            // sessionStorage.setItem('playlist', response.playlist);
                             console.log(response.session.isLogin);
                         }
                         else {
-                            // sessionStorage.setItem('isLogin', false);
                             var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
                             myModal.show();
                         }
@@ -176,18 +250,14 @@
                         console.log(error);
                     }
                 });
-                // var isLogin = false;
-                // if (sessionStorage.getItem('isLogin') === false) {
-                    
-                //     isLogin = false;
-                // }
-                // else {
-                //     isLogin = true;
-                // }
             });
         </script>
 
         <script>
+            // 儲存當前播放清單ID
+            function savePlaylistID(PlaylistID) {
+                sessionStorage.setItem('PlaylistID', PlaylistID);
+            }
             // 刪除播放清單
             function deletePlaylist(PlayListID) {
                 $.ajax({
@@ -203,8 +273,66 @@
                     }
                 });
             }
+            // 新增播放清單
+            $('#addPlistForm').submit(function(event) {
+                // 防止表單的默認提交行為
+                event.preventDefault();
+                
+   
+                var PlaylistName = $('#Plist-name').val();
+                var userID = sessionStorage.getItem('userID');
+           
+                // 使用 AJAX 發送 POST 請求到 Flask 的後端路由進行認證
+                $.ajax({
+                    type: 'POST',
+                    url: '/addPlaylist', // 請替換成你的後端路由
+                    data: JSON.stringify({userID: userID, PlaylistName: PlaylistName}),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        window.location.reload();
+                    },
+                    error: function(error) {
+                        // 處理錯誤情況
+                        console.log(error);
+                    }
+                });
+            });
+            // 重新命名播放清單
+            $('#rnPlistForm').submit(function(event) {
+                // 防止表單的默認提交行為
+                event.preventDefault();
+                
+   
+                var PlaylistName = $('#rnPlist-name').val();
+                var PlaylistID = sessionStorage.getItem('PlaylistID');
+                console.log(PlaylistName);
+                // 使用 AJAX 發送 POST 請求到 Flask 的後端路由進行認證
+                $.ajax({
+                    type: 'POST',
+                    url: '/rnPlaylist', // 請替換成你的後端路由
+                    data: JSON.stringify({PlaylistID: PlaylistID, PlaylistName: PlaylistName}),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        window.location.reload();
+                    },
+                    error: function(error) {
+                        // 處理錯誤情況
+                        console.log(error);
+                    }
+                });
+            });
 
-
+            // 搜尋事件
+            $('#searchForm').submit(function(event) {
+                // 防止表單的默認提交行為
+                event.preventDefault();
+                
+                // 獲取使用者輸入的關鍵字
+                var keyword = $('#searchInput').val();
+                var searchResultURL = '/search_result?keyword=' + encodeURIComponent(keyword);
+                
+                window.location.href = searchResultURL;
+            });
         </script>
 
         <script>

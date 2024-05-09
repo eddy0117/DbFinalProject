@@ -28,6 +28,14 @@ def index():
 def getSession():
     return jsonify({'session': session})
 
+@app.route('/search_result', methods=['POST', 'GET'])
+def search_result():
+    if request.method == 'GET':
+        keyword = request.args.get('keyword')
+        song_data = search_song(db, keyword)
+        session['song_data'] = song_data
+
+        return render_template('search_result.html', session_data=session)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -69,6 +77,30 @@ def deletePlaylist():
         data = request.json
         del_playlist(db, data['PlaylistID'])   
     return 'deletePlaylist'
+
+@app.route('/addPlaylist', methods=['POST', 'GET'])
+def addPlaylist():
+    if request.method == 'POST':
+        data = request.json
+        add_playlist(db, session['userID'], data['PlaylistName'])
+    return 'addPlaylist'
+
+@app.route('/rnPlaylist', methods=['POST', 'GET'])
+def rnPlaylist():
+    if request.method == 'POST':
+        data = request.json
+        rename_playlist(db, data['PlaylistID'], data['PlaylistName'])
+    return 'rnPlaylist'
+
+@app.route('/addToPlaylist', methods=['POST', 'GET'])
+def addToPlaylist():
+    if request.method == 'POST':
+        data = request.json
+        # 判斷歌曲是否已經存在於播放清單中
+        if not SongList.query.filter_by(PlaylistID=data['PlaylistID'], SongID=data['SongID']).first():
+            add_song_to_playlist(db, data['PlaylistID'], data['SongID'])
+            return 'success'
+        return 'failed'
 if __name__ == "__main__":
     
     app.run(debug=True)

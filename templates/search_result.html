@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+        <!-- <link rel="stylesheet" href="index.css"> -->
+        <title>線上撥放器</title>
+
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+
+    </head>
+    <body>
+        <div class="container">
+            <div class="row fixed-width mt-5">
+                <div class="col">
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="searchForm">
+                                <label for="search" class="form-label" style="font-size: large;">搜尋歌曲</label>
+                                <input type="text" class="form-control" id="searchInput">
+                                <button type="submit" class="btn btn-success mt-3">搜尋</button>
+                            </form>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="row fixed-width mt-3">
+                <p style="font-size: 22px;">搜尋結果</p>
+            </div>
+            <div class="row fixed-width mt-3">
+                <div class="col">
+                    <ul class="list-group mt-3">         
+                        {% for song in session_data.song_data %}     
+                        <li class="list-group-item">     
+                            <div class="list-item">
+                                <div class="accordion", id="songItem{{ song.SongID|string }}">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header d-flex justify-content-between align-items-center" id="heading{{ song.SongID|string }}">
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    加入播放清單
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                    {% for k, v in session_data.playlist.items() %}
+                                                    <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{v}}</a></li>
+                                                    {% endfor %}
+                                           
+                                                </ul>
+                                            </div>
+                                            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapse{{ song.SongID|string }}">   
+                                                {{ song['Title'] }}
+                                            </button>
+                                           
+                                       
+                                        </h2>
+                                        <div id="collapse{{ song.SongID|string }}" class="accordion-collapse collapse" aria-labelledby="heading{{ song.SongID|string }}" data-bs-parent="#songItem{{ song.SongID|string }}">
+                                            <div class="accordion-body">
+                                             
+                                                <p class="col mt-1">創作者 : {{ song.Artist }}</p>
+                                                <p class="col mt-1">所屬專輯 : {{ song.Album }}</p>
+                                                <p class="col mt-1">發行年分 : {{ song.ReleaseYear }}</p>
+                                                <p class="col mt-1">時長 : {{ song.Duration }}</p>
+                                              
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                
+                        </li>  
+                        {% endfor %}
+                    </ul>
+                  
+                </div>
+                    
+            </div>
+        </div>
+
+        <div class="modal fade" id="ASsuccessModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ASsuccessModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ASsuccessModalLabel">加入成功</h5>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+    </body>
+
+    <!-- 頁面載入 -->
+    <script>
+        $(document).ready(function() {
+            // 在網頁載入時將session透過ajax請求取得
+            $.ajax({
+                type: 'POST',
+                url: '/getSession',
+                success: function(response) {
+                    console.log(response.session.song_data);
+                    // sessionStorage.setItem('userID', JSON.stringify(response.session.userID));
+                    // sessionStorage.setItem('')
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // 將歌曲加入播放清單
+        function addToPlaylist(SongID, PlaylistID) {
+            
+            $.ajax({
+                type: 'POST', 
+                url: '/addToPlaylist',
+                data: JSON.stringify({SongID: SongID, PlaylistID: PlaylistID}),
+                contentType: 'application/json',
+                success: function(response) {
+                    if (response == 'success') {
+                        var myModal = new bootstrap.Modal(document.getElementById('ASsuccessModal'));
+                        myModal.show();
+                        setTimeout(function() {
+                            myModal.hide();
+                        }, 800);
+                    }
+                    else {
+                        console.log(response);
+                    }
+                    
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            })
+        }
+        $('#searchForm').submit(function(event) {
+                // 防止表單的默認提交行為
+                event.preventDefault();
+                
+                // 獲取使用者輸入的關鍵字
+                var keyword = $('#searchInput').val();
+                var searchResultURL = '/search_result?keyword=' + encodeURIComponent(keyword);
+                
+                window.location.href = searchResultURL;
+            });
+    </script>
+</html>
