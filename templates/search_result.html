@@ -16,6 +16,18 @@
 
     </head>
     <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+              <!-- <p class="navbar-brand">歌曲播放器</p> -->
+              <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button> -->
+              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                  <a class="nav-link" aria-current="page" href="/">首頁</a>
+              </div>
+            </div>
+        </nav>
         <div class="container">
             <div class="row fixed-width mt-5">
                 <div class="col">
@@ -31,9 +43,9 @@
                 </div>
                 
             </div>
-            <div class="row fixed-width mt-3">
+            <!-- <div class="row fixed-width mt-3">
                 <p style="font-size: 22px;">搜尋結果</p>
-            </div>
+            </div> -->
             <div class="row fixed-width mt-3">
                 <div class="col">
                     <ul class="list-group">
@@ -150,16 +162,6 @@
             </div>
         </div>
 
-        <div class="modal fade" id="ASsuccessModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ASsuccessModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ASsuccessModalLabel">加入成功</h5>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
         <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
             <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-body" style="background-color: rgba(39, 226, 39, 0.5);">
@@ -217,16 +219,10 @@
                     })
 
                     if (response == 'success') {
-                        // var myModal = new bootstrap.Modal(document.getElementById('ASsuccessModal'));
                         
-                    
-                        // toastList.forEach(toast => toast.show())
                         toastList[0].show();
-                        // var myToast = new bootstrap.Toast(document.getElementById('ASsuccess'));
-                        // myToast.show();
-                        // myModal.show();
-                        setTimeout(function() {
-                            // myModal.hide();
+ 
+                        setTimeout(function() {          
                             toastList[0].hide();
                         }, 1000);
                        
@@ -234,7 +230,6 @@
                     else {
                         toastList[1].show();
                         setTimeout(function() {
-                            // myModal.hide();
                             toastList[1].hide();
                         }, 1000);
                     }
