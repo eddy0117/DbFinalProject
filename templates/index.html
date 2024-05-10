@@ -66,19 +66,39 @@
             <!-- jinja2創建播放清單列表 -->
             <div class="row fixed-width mt-5">
                 <div class="col">
-                    <button type="button" class="btn btn-primary" style="width: 120px; font-size: 14px;" data-bs-toggle="modal" data-bs-target="#addPlistModal">新增播放清單</button>
+                    <button type="button" class="btn btn-primary" style="width: 120px; width: fit-content;" data-bs-toggle="modal" data-bs-target="#addPlistModal">新增播放清單</button>
                     {% if session_data.isLogin %}
                     
                     <ul class="list-group mt-3">         
                         {% for k, v in session_data.playlist.items() %}     
                         <li class="list-group-item">     
                             <div class="list-item">
-                                <h5 class="list-item">{{ v }}</h5>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-primary" style="border-color:darkorange; background-color:darkorange;" data-bs-toggle="modal" data-bs-target="#rnPlistModal" onclick="savePlaylistID('{{ k }}')">重新命名</button>
-                                    <button type="button" class="btn btn-danger" onclick="deletePlaylist('{{ k }}')">刪除</button>
+                                <div class="row">
+                                    <div class="col">
+                                        <h5>{{ v }}</h5>
+                                    </div>
+                                    <div class="col">
+                                        <div class="btn-group">
+                                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ k }}" aria-expanded="false" aria-controls="collapseExample{{ k }}">
+                                                3
+                                            <button type="button" class="btn btn-primary" style="border-color:darkorange; background-color:darkorange;" data-bs-toggle="modal" data-bs-target="#rnPlistModal" onclick="savePlaylistID('{{ k }}')">重新命名</button>
+                                            <button type="button" class="btn btn-danger" onclick="deletePlaylist('{{ k }}')">刪除</button>
+                                        </div>
+                                    </div>
+                                    
                                 </div>
                                 
+                                <div class="row">
+                                    <!-- 展開按鈕卡片 -->
+                                    <div class="col">
+                                        <div class="collapse" id="collapseExample{{ k }}">
+                                            <div class="card card-body">
+                                                <p>123122222222222222222222222222222222222222222222222222222222222222222222222222222</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
                         </li>  
                         {% endfor %}
                     </ul>

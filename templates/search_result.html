@@ -16,6 +16,18 @@
 
     </head>
     <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+              <!-- <p class="navbar-brand">歌曲播放器</p> -->
+              <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button> -->
+              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                  <a class="nav-link" aria-current="page" href="/">首頁</a>
+              </div>
+            </div>
+        </nav>
         <div class="container">
             <div class="row fixed-width mt-5">
                 <div class="col">
@@ -31,16 +43,83 @@
                 </div>
                 
             </div>
-            <div class="row fixed-width mt-3">
+            <!-- <div class="row fixed-width mt-3">
                 <p style="font-size: 22px;">搜尋結果</p>
-            </div>
+            </div> -->
             <div class="row fixed-width mt-3">
                 <div class="col">
-                    <ul class="list-group mt-3">         
+                    <ul class="list-group">
+                        <li class="list-group-item">     
+                            <div class="list-item md-3">
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <p style="font-size: 25px;"><strong>標題</strong></p>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <p style="font-size: 25px;"><strong>專輯</strong></p>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <p style="font-size: 25px;"><strong>作者</strong></p>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <p style="font-size: 25px;"><strong>時長</strong></p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <ul class="list-group mt-3">                            
                         {% for song in session_data.song_data %}     
                         <li class="list-group-item">     
                             <div class="list-item">
-                                <div class="accordion", id="songItem{{ song.SongID|string }}">
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <p style="font-size: 20px;">{{ song.Title }}</p>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <p style="font-size: 20px;">{{ song.Album }}</p>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <p style="font-size: 20px;">{{ song.Artist }}</p>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <p style="font-size: 20px;">{{ song.Duration }}</p>
+                                    </div>
+                                    <div class="col">
+                                        <div class="btn-group" style="float: right;">
+                                    
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    加入播放清單
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                    {% for k, v in session_data.playlist.items() %}
+                                                    <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{v}}</a></li>
+                                                    {% endfor %}
+                                           
+                                                </ul>
+                                            </div>
+        
+                                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapseExample{{ song.SongID|string }}">
+                                                詳細資訊
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <!-- 展開按鈕卡片 -->
+                                    <div class="collapse" id="collapseExample{{ song.SongID|string }}">
+                                        <div class="card card-body">
+                                            <p class="col mt-1">創作者 : {{ song.Artist }}</p>
+                                            <p class="col mt-1">所屬專輯 : {{ song.Album }}</p>
+                                            <p class="col mt-1">發行年分 : {{ song.ReleaseYear }}</p>
+                                            <p class="col mt-1">時長 : {{ song.Duration }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- <div class="accordion", id="songItem{{ song.SongID|string }}">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header d-flex justify-content-between align-items-center" id="heading{{ song.SongID|string }}">
                                             <div class="dropdown">
@@ -71,7 +150,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                     
                                 
                         </li>  
@@ -83,17 +162,24 @@
             </div>
         </div>
 
-        <div class="modal fade" id="ASsuccessModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ASsuccessModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ASsuccessModalLabel">加入成功</h5>
-                    </div>
-                    
+        <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
+            <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body" style="background-color: rgba(39, 226, 39, 0.5);">
+                    <div class="col end-50">
+                        <p style="font-size: large; color: rgb(18, 78, 3);"><strong>加入成功</strong></p>
+                    </div> 
                 </div>
             </div>
         </div>
-        
+        <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
+            <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body" style="background-color: rgba(224, 38, 38, 0.5);">
+                    <div class="col end-50">
+                        <p style="font-size: large; color: rgb(117, 24, 24);"><strong>歌曲已在清單中</strong></p>
+                    </div> 
+                </div>
+            </div>
+        </div>
     </body>
 
     <!-- 頁面載入 -->
@@ -114,8 +200,9 @@
             });
         });
     </script>
-
+    
     <script>
+        
         // 將歌曲加入播放清單
         function addToPlaylist(SongID, PlaylistID) {
             
@@ -125,15 +212,26 @@
                 data: JSON.stringify({SongID: SongID, PlaylistID: PlaylistID}),
                 contentType: 'application/json',
                 success: function(response) {
+
+                    var toastElList = [].slice.call(document.querySelectorAll('.toast'))         
+                    var toastList = toastElList.map(function(toastEl) {
+                        return new bootstrap.Toast(toastEl)
+                    })
+
                     if (response == 'success') {
-                        var myModal = new bootstrap.Modal(document.getElementById('ASsuccessModal'));
-                        myModal.show();
-                        setTimeout(function() {
-                            myModal.hide();
-                        }, 800);
+                        
+                        toastList[0].show();
+ 
+                        setTimeout(function() {          
+                            toastList[0].hide();
+                        }, 1000);
+                       
                     }
                     else {
-                        console.log(response);
+                        toastList[1].show();
+                        setTimeout(function() {
+                            toastList[1].hide();
+                        }, 1000);
                     }
                     
                 },
