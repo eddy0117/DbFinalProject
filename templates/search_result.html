@@ -162,14 +162,22 @@
         </div>
         <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
             <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-              <div class="toast-body" style="background-color: rgba(39, 226, 39, 0.5);">
-                <div class="col end-50">
-                    <p style="font-size: large; color: rgb(18, 78, 3);"><strong>加入成功</strong></p>
-                </div> 
-              </div>
+                <div class="toast-body" style="background-color: rgba(39, 226, 39, 0.5);">
+                    <div class="col end-50">
+                        <p style="font-size: large; color: rgb(18, 78, 3);"><strong>加入成功</strong></p>
+                    </div> 
+                </div>
             </div>
         </div>
-        
+        <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
+            <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body" style="background-color: rgba(224, 38, 38, 0.5);">
+                    <div class="col end-50">
+                        <p style="font-size: large; color: rgb(117, 24, 24);"><strong>歌曲已在清單中</strong></p>
+                    </div> 
+                </div>
+            </div>
+        </div>
     </body>
 
     <!-- 頁面載入 -->
@@ -202,25 +210,33 @@
                 data: JSON.stringify({SongID: SongID, PlaylistID: PlaylistID}),
                 contentType: 'application/json',
                 success: function(response) {
+
+                    var toastElList = [].slice.call(document.querySelectorAll('.toast'))         
+                    var toastList = toastElList.map(function(toastEl) {
+                        return new bootstrap.Toast(toastEl)
+                    })
+
                     if (response == 'success') {
                         // var myModal = new bootstrap.Modal(document.getElementById('ASsuccessModal'));
-                        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
                         
-                        var toastList = toastElList.map(function(toastEl) {
-                            return new bootstrap.Toast(toastEl)
-                        })
-                        console.log(toastList);
-                        toastList.forEach(toast => toast.show())
+                    
+                        // toastList.forEach(toast => toast.show())
+                        toastList[0].show();
                         // var myToast = new bootstrap.Toast(document.getElementById('ASsuccess'));
                         // myToast.show();
                         // myModal.show();
-                        // setTimeout(function() {
-                        //     myModal.hide();
-                        // }, 800);
+                        setTimeout(function() {
+                            // myModal.hide();
+                            toastList[0].hide();
+                        }, 1000);
                        
                     }
                     else {
-                        console.log(response);
+                        toastList[1].show();
+                        setTimeout(function() {
+                            // myModal.hide();
+                            toastList[1].hide();
+                        }, 1000);
                     }
                     
                 },
