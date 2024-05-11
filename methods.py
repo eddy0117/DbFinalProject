@@ -11,8 +11,8 @@ import time
 def to_dict(self):
     return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-def add_song(db : SQLAlchemy, Title, Album, ReleaseYear, Duration, *ArtistName):
-    song = Song(Title=Title, Album=Album, ReleaseYear=ReleaseYear, Duration=Duration)
+def add_song(db : SQLAlchemy, Title, Album, ReleaseYear, Duration, PictureSrc, *ArtistName):
+    song = Song(Title=Title, Album=Album, ReleaseYear=ReleaseYear, Duration=Duration, PictureSrc=PictureSrc)
     db.session.add(song)
     db.session.commit()
   
@@ -33,8 +33,21 @@ def del_song(db : SQLAlchemy, SongID):
 
 def search_song(db : SQLAlchemy, searchQuery):
     song = Song.query.filter(Song.Title.ilike(f'%{searchQuery}%')).all()
+    q_album = Song.query.filter(Song.Album.ilike(f'%{searchQuery}%')).all()
+    q_artist_song = db.session.query(Artist, Song).join(Artist, Artist.SongID == Song.SongID).filter(Artist.Name.ilike(f'%{searchQuery}%')).all()
+    
+    # artist join song
+
+    
+    q_artist_song = [q[1] for q in q_artist_song]
+    search_query = [*song, *q_album, *q_artist_song]
+    song_exist_list = []
     song_query = []
-    for it in song:
+    for it in search_query:
+        if it.SongID not in song_exist_list:
+            song_exist_list.append(it.SongID)
+        else:
+            continue
         song_data = to_dict(it)
         
         artist = Artist.query.filter_by(SongID=it.SongID)
@@ -60,8 +73,20 @@ def is_user_exist(username, password):
 def get_user_playlist(db : SQLAlchemy, UserID):
     playlist = Playlist.query.filter_by(UserID=UserID)
     playlist_pkg = {}
+    
     for it in playlist:
-        playlist_pkg[str(it.PlaylistID)] = it.PlaylistName
+        songlist = SongList.query.filter_by(PlaylistID=it.PlaylistID).all()
+        song_query = []
+        for s in songlist:
+            song = Song.query.filter_by(SongID=s.SongID).first()
+            song_data = to_dict(song)
+            artist = Artist.query.filter_by(SongID=s.SongID)
+            song_data['Artist'] = artist[0].Name
+            for art in artist[1:]:
+                song_data['Artist'] += f', {art.Name}'
+            song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
+            song_query.append(song_data)
+        playlist_pkg[str(it.PlaylistID)] = [it.PlaylistName, f"{it.CreationDate.split('-')[0]}年{it.CreationDate.split('-')[1]}月{it.CreationDate.split('-')[2].split(' ')[0]}日", song_query]
     return playlist_pkg
 
 def add_playlist(db : SQLAlchemy, UserID, PlaylistName):

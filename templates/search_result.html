@@ -18,11 +18,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-              <!-- <p class="navbar-brand">歌曲播放器</p> -->
-              <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button> -->
-              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                   <a class="nav-link" aria-current="page" href="/">首頁</a>
               </div>
@@ -94,7 +90,7 @@
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                                     {% for k, v in session_data.playlist.items() %}
-                                                    <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{v}}</a></li>
+                                                    <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{ v[0] }}</a></li>
                                                     {% endfor %}
                                            
                                                 </ul>
@@ -110,12 +106,24 @@
                                 <div class="row">
                                     <!-- 展開按鈕卡片 -->
                                     <div class="collapse" id="collapseExample{{ song.SongID|string }}">
-                                        <div class="card card-body">
-                                            <p class="col mt-1">創作者 : {{ song.Artist }}</p>
-                                            <p class="col mt-1">所屬專輯 : {{ song.Album }}</p>
-                                            <p class="col mt-1">發行年分 : {{ song.ReleaseYear }}</p>
-                                            <p class="col mt-1">時長 : {{ song.Duration }}</p>
-                                        </div>
+           
+                                            <div class="card card-body">
+                                                <div class="container">
+                                                    <div class="row-sm-3">
+                                                        <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" alt="album-img" width="150" height="150">
+                                                    </div>              
+                                                    <div class="row">
+                                                        <p>創作者 : {{ song.Artist }}</p>
+                                                        <p>所屬專輯 : {{ song.Album }}</p>
+                                                        <p>發行年分 : {{ song.ReleaseYear }}</p>
+                                                        <p>時長 : {{ song.Duration }}</p>                                                
+                                                    </div>
+                                                    
+                                                </div>
+                                                
+                                           
+                                            </div>
+                    
                                     </div>
                                 </div>
                                 
@@ -164,7 +172,7 @@
 
         <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
             <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-body" style="background-color: rgba(39, 226, 39, 0.5);">
+                <div class="toast-body" style="background-color: rgba(39, 226, 39, 0.3);">
                     <div class="col end-50">
                         <p style="font-size: large; color: rgb(18, 78, 3);"><strong>加入成功</strong></p>
                     </div> 
@@ -173,7 +181,7 @@
         </div>
         <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
             <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-body" style="background-color: rgba(224, 38, 38, 0.5);">
+                <div class="toast-body" style="background-color: rgba(224, 38, 38, 0.3);">
                     <div class="col end-50">
                         <p style="font-size: large; color: rgb(117, 24, 24);"><strong>歌曲已在清單中</strong></p>
                     </div> 

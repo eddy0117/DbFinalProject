@@ -5,6 +5,7 @@ from methods import *
 
 import os
 import json
+import time
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
@@ -21,7 +22,7 @@ def index():
     if session['isLogin']:
         playlist_pkg = get_user_playlist(db, session['userID'])
         session['playlist'] = playlist_pkg
-
+        
     return render_template('index.html', session_data=session)
 
 @app.route('/getSession', methods=['POST', 'GET'])
@@ -101,6 +102,13 @@ def addToPlaylist():
             add_song_to_playlist(db, data['PlaylistID'], data['SongID'])
             return 'success'
         return 'failed'
+    
+@app.route('/delSongFromPlaylist', methods=['POST', 'GET'])
+def delSongFromPlaylist():
+    if request.method == 'POST':
+        data = request.json
+        del_song_from_playlist(db, data['PlaylistID'], data['SongID'])
+    return 'delSongFromPlaylist'
 if __name__ == "__main__":
     
     app.run(debug=True)

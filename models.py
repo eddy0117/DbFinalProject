@@ -15,14 +15,15 @@ class Song(db.Model):
     Album = db.Column(db.String(80), unique=False, nullable=False)
     ReleaseYear = db.Column(db.Integer, unique=False, nullable=False)
     Duration = db.Column(db.Integer, unique=False, nullable=False)
-
+    PictureSrc = db.Column(db.String(80), unique=False, nullable=True)
     # SongList = db.relationship('SongList', backref='song')
 
-    def __init__(self, Title, Album, ReleaseYear, Duration):
+    def __init__(self, Title, Album, ReleaseYear, Duration, PictureSrc):
         self.Title = Title
         self.Album = Album
         self.ReleaseYear = ReleaseYear
         self.Duration = Duration
+        self.PictureSrc = PictureSrc
 
 class Artist(db.Model):
     __tablename__ = 'artist'
