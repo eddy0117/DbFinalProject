@@ -13,17 +13,37 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <!-- Bootstrap Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
-
+        <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
-                  <a class="nav-link" aria-current="page" href="/">首頁</a>
-              </div>
+        <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light">
+            <div class="container-fluid" style="height: 30px;">
+                <p class="navbar-brand col-sm-1" id="showName"> </p>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                      <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">首頁</a>     
+                      </li> 
+                    </ul>
+                </div>
+                <a class="btn btn-danger" style="float: right;" href="/logout">登出</a>
             </div>
         </nav>
+
+        <nav class="navbar fixed-bottom navbar-light mb-3" style="height: 60px;">
+            <div class="container">
+                <div class="col-sm-2">
+                    
+                </div>
+                <div class="col-sm-8">
+                    <audio controls id="audioPlayer">
+                        Your browser does not support the audio element.
+                    </audio>  
+                </div>
+                          
+            </div>
+        </nav>
+
         <div class="container">
             <div class="row fixed-width mt-5">
                 <div class="col">
@@ -48,6 +68,9 @@
                         <li class="list-group-item">     
                             <div class="list-item md-3">
                                 <div class="row">
+                                    <div class="col-sm-1">
+                                        <p style="font-size: 25px;"><strong>  </strong></p>
+                                    </div>
                                     <div class="col-sm-2">
                                         <p style="font-size: 25px;"><strong>標題</strong></p>
                                     </div>
@@ -69,13 +92,18 @@
                         <li class="list-group-item">     
                             <div class="list-item">
                                 <div class="row">
+                                    <div class="col-sm-1">
+                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}')">
+                                            播放
+                                        </button>
+                                    </div>
                                     <div class="col-sm-2">
                                         <p style="font-size: 20px;">{{ song.Title }}</p>
                                     </div>
                                     <div class="col-sm-2">
                                         <p style="font-size: 20px;">{{ song.Album }}</p>
                                     </div>
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-2">
                                         <p style="font-size: 20px;">{{ song.Artist }}</p>
                                     </div>
                                     <div class="col-sm-2">
@@ -110,7 +138,7 @@
                                             <div class="card card-body">
                                                 <div class="container">
                                                     <div class="row-sm-3">
-                                                        <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" alt="album-img" width="150" height="150">
+                                                        <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" alt="{{ url_for('static', filename='no_img.jpg') }}" width="150" height="150">
                                                     </div>              
                                                     <div class="row">
                                                         <p>創作者 : {{ song.Artist }}</p>
@@ -125,41 +153,9 @@
                                             </div>
                     
                                     </div>
+
                                 </div>
                                 
-                                <!-- <div class="accordion", id="songItem{{ song.SongID|string }}">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header d-flex justify-content-between align-items-center" id="heading{{ song.SongID|string }}">
-                                            <div class="dropdown">
-                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    加入播放清單
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                    {% for k, v in session_data.playlist.items() %}
-                                                    <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{v}}</a></li>
-                                                    {% endfor %}
-                                           
-                                                </ul>
-                                            </div>
-                                            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapse{{ song.SongID|string }}">   
-                                                {{ song['Title'] }}
-                                            </button>
-                                           
-                                       
-                                        </h2>
-                                        <div id="collapse{{ song.SongID|string }}" class="accordion-collapse collapse" aria-labelledby="heading{{ song.SongID|string }}" data-bs-parent="#songItem{{ song.SongID|string }}">
-                                            <div class="accordion-body">
-                                             
-                                                <p class="col mt-1">創作者 : {{ song.Artist }}</p>
-                                                <p class="col mt-1">所屬專輯 : {{ song.Album }}</p>
-                                                <p class="col mt-1">發行年分 : {{ song.ReleaseYear }}</p>
-                                                <p class="col mt-1">時長 : {{ song.Duration }}</p>
-                                              
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> -->
-                    
                                 
                         </li>  
                         {% endfor %}
@@ -192,13 +188,17 @@
 
     <!-- 頁面載入 -->
     <script>
+ 
         $(document).ready(function() {
             // 在網頁載入時將session透過ajax請求取得
             $.ajax({
                 type: 'POST',
                 url: '/getSession',
                 success: function(response) {
-                    console.log(response.session.song_data);
+                    var nameView = document.getElementById('showName');
+                    if (nameView != undefined) {
+                        nameView.innerHTML = response.session.username ;
+                    }
                     // sessionStorage.setItem('userID', JSON.stringify(response.session.userID));
                     // sessionStorage.setItem('')
                 },
@@ -258,5 +258,71 @@
                 
                 window.location.href = searchResultURL;
             });
+    </script>
+
+    <!-- 音訊串流 -->
+    <script>
+            
+        function base64ToArrayBuffer(base64) {
+            var binary_string =  window.atob(base64);
+            var len = binary_string.length;
+            var bytes = new Uint8Array( len );
+            for (var i = 0; i < len; i++)        {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function byteToBlob(byteArray) {
+        
+            return new Blob([byteArray], {type: 'audio/flac'});
+        }
+
+        function appendBuffer(buffer1, buffer2) {
+            var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+            tmp.set(new Uint8Array(buffer1), 0);
+            tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
+            return tmp;
+        };
+        
+
+        function startplay(filename) {
+            const socket = io();
+            var playable = false;
+            var buff_c = new Uint8Array();
+            // 接收音频数据块并播放
+            socket.on('audio_chunk', function(data) {
+                if (data == 'end') {
+                    socket.disconnect();
+                    console.log('end')
+                    playable = true;
+                } else {
+                    const audioPlayer = document.getElementById('audioPlayer');
+
+                    const buff = base64ToArrayBuffer(data)
+                    buff_c = appendBuffer(buff_c, buff)
+                    const blob = byteToBlob(buff_c);
+
+                    const blobUrl = URL.createObjectURL(blob);
+                    audioPlayer.src = blobUrl;
+                    
+                    // audioPlayer.oncanplaythrough = function() {
+                    //     console.log('audioPlayer.oncanplaythrough')
+                    //     // audioPlayer.play();
+                    // };  
+                
+                }
+                if (playable) {
+                    document.getElementById('audioPlayer').play();
+                }
+                else {
+                    document.getElementById('audioPlayer').pause();
+                }
+            });
+            socket.emit('stream_audio', {filename: filename});
+            document.getElementById('audioPlayer').play();
+        }
+
+        
     </script>
 </html>

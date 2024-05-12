@@ -11,8 +11,8 @@ import time
 def to_dict(self):
     return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-def add_song(db : SQLAlchemy, Title, Album, ReleaseYear, Duration, PictureSrc, *ArtistName):
-    song = Song(Title=Title, Album=Album, ReleaseYear=ReleaseYear, Duration=Duration, PictureSrc=PictureSrc)
+def add_song(db : SQLAlchemy, Title, Album, ReleaseYear, Duration, PictureSrc, SongSrc, *ArtistName):
+    song = Song(Title=Title, Album=Album, ReleaseYear=ReleaseYear, Duration=Duration, PictureSrc=PictureSrc, SongSrc=SongSrc)
     db.session.add(song)
     db.session.commit()
   

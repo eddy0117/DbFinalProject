@@ -1,15 +1,18 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, render_template, url_for, redirect, request, session, jsonify
+from flask import Flask, render_template, url_for, redirect, request, session, Response, jsonify
+from flask_socketio import SocketIO, emit
 from models import db, Song, User, Playlist 
 from methods import *
 
 import os
 import json
 import time
+import base64
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SECRET_KEY'] = os.urandom(24)
+socketio = SocketIO(app)
 
 db.init_app(app)
 
@@ -35,8 +38,10 @@ def search_result():
         keyword = request.args.get('keyword')
         song_data = search_song(db, keyword)
         session['song_data'] = song_data
-
-        return render_template('search_result.html', session_data=session)
+        if 'isLogin' not in session.keys() or not session['isLogin']:
+            return redirect('/')  
+        else:
+            return render_template('search_result.html', session_data=session)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -65,12 +70,17 @@ def login():
         if is_user_exist(username, password):
             session['isLogin'] = True
             session['userID'] = is_user_exist(username, password)
-            
+            session['username'] = username
                 
             print(session)
             return jsonify({'message': 'Login successful'})
         else:
             return jsonify({'message': 'Invalid username or password'}), 401
+        
+@app.route('/logout', methods=['POST', 'GET'])
+def logout():
+    session.clear()
+    return redirect('/')
 
 @app.route('/deletePlaylist', methods=['POST', 'GET'])
 def deletePlaylist():
@@ -109,6 +119,24 @@ def delSongFromPlaylist():
         data = request.json
         del_song_from_playlist(db, data['PlaylistID'], data['SongID'])
     return 'delSongFromPlaylist'
+
+@socketio.on('stream_audio')
+def stream_audio(data):
+
+    path = 'E:/Programs/React/DbFinalProject/static/songs/' + data['filename']
+    chunk_size = 2048000
+   
+    with open(path, 'rb') as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                emit('audio_chunk', 'end')  
+                break
+            chunk_b64 = base64.b64encode(chunk).decode('utf-8')
+     
+            emit('audio_chunk', chunk_b64)
+
 if __name__ == "__main__":
     
-    app.run(debug=True)
+    # app.run(debug=True)
+    socketio.run(app, debug=True)
