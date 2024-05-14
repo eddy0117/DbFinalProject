@@ -135,4 +135,4 @@ def stream_audio(data):
 if __name__ == "__main__":
     
     # app.run(debug=True)
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host='192.168.2.107')

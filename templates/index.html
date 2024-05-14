@@ -32,34 +32,32 @@
     <body>
         <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light">
             <div class="container-fluid" style="height: 30px;">
-                <p class="navbar-brand col-sm-1" id="showName"> </p>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                      <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">首頁</a>
-                      </li>
-                    </ul>
+                <div class="col-1">
+                    <p class="navbar-brand col-sm-1" id="showName" style="position: absolute; top: 50%; transform: translateY(-50%);"> </p>
                 </div>
-                <a class="btn btn-danger" style="float: right;" href="/logout">登出</a>
+                <div class="col-1">
+                    <a class="nav-link active" aria-current="page" href="/" style="color: black;">首頁</a>
+                </div>
+                    
+                <div class="col-10">
+                    <a class="btn btn-danger" style="float: right;" href="/logout">登出</a>
+                </div>
             </div>
         </nav>
 
-        <nav class="navbar fixed-bottom navbar-light mb-3" style="height: 60px;">
-                <div class="container">
-                    <div class="col-sm-2">
-                        
-                    </div>
-                    <div class="col-sm-8">
-                        <audio controls id="audioPlayer">
-                            Your browser does not support the audio element.
-                        </audio>  
-                    </div>
+        <nav class="navbar fixed-bottom navbar-light" style="height: 60px; background-color: rgba(75, 75, 75, 0.8)">
+            <div class="col-6 d-flex justify-content-center align-items-center">
+                <p id="nowPlayingTitle" style="color: azure; font-size: 30px;"><strong></strong></p>
+            </div>
+            <div class="col-6 d-flex justify-content-center align-items-center">
+                <audio controls id="audioPlayer" style="width: 700px; height: 45px; float: right; position: absolute; top: 50%; transform: translateY(-50%);">
+                    Your browser does not support the audio element.
+                </audio>       
+            </div>
                               
-                </div>
         </nav>
 
         <div class="container">
-           
             <div class="row mt-5">
                 <div class="col">
                     
@@ -112,28 +110,29 @@
                                                 <li class="list-group-item">     
                                                     <div class="list-item">
                                                         <div class="row">
-                                                            <div class="col-sm-1">
-                                                                <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}')">
+                                                            <div class="col-1">
+                                                                <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}')">
                                                                     播放
                                                                 </button>
                                                             </div>
-                                                            <div class="col-sm-2">
+                                                            <div class="col-3">
                                                                 <p style="font-size: 20px;">{{ song.Title }}</p>
                                                             </div>
-                                                            <div class="col-sm-2">
+                                                            <div class="col-2">
                                                                 <p style="font-size: 20px;">{{ song.Album }}</p>
                                                             </div>
-                                                            <div class="col-sm-3">
-                                                                <p style="font-size: 20px;">{{ song.Artist }}</p>
+                                                            <div class="col-2">
+                                                                <p style="font-size: 20px;">{{ song.Name }}</p>
                                                             </div>
-                                                            <div class="col-sm-2">
+                                                            <div class="col-2">
                                                                 <p style="font-size: 20px;">{{ song.Duration }}</p>
                                                             </div>
-                                                            <div class="col-sm-2">
-                                                                <div class="btn-group">
+                                                          
+                                                            <div class="col-2">
+                                                                <div class="btn-group" style="float: right;">
                                                                     <button type="button" class="btn btn-danger" onclick="delSongFromPlayList('{{ k }}', '{{ song.SongID }}')">刪除</button>
                                                                     <button class="btn btn-primary" style="float: right;" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ k|string }}{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapseExample{{ k|string }}{{ song.SongID|string }}">
-                                                                        詳細
+                                                                        i
                                                                     </button>
                                                                 </div>
                                                                 
@@ -148,7 +147,7 @@
 
                                                                    
                                                                         <div class="row-sm-3">
-                                                                            <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" alt="{{ url_for('static', filename='no_img.jpg') }}" width="150" height="150">
+                                                                            <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" onerror="this.src='static/no_img.jpg'" width="150" height="150">
                                                                         </div>  
                                                                         <div class="row">
                                                                             <p>創作者 : {{ song.Artist }}</p>
@@ -566,31 +565,28 @@
         };
         
 
-        function startplay(filename) {
+        function startplay(filename, title) {
             const socket = io();
             var playable = false;
             var buff_c = new Uint8Array();
+            document.getElementById('nowPlayingTitle').innerHTML = '<strong>' + title + '</strong>';
             // 接收音频数据块并播放
+            const audioPlayer = document.getElementById('audioPlayer');
             socket.on('audio_chunk', function(data) {
                 if (data == 'end') {
                     socket.disconnect();
                     console.log('end')
                     playable = true;
-                } else {
-                    const audioPlayer = document.getElementById('audioPlayer');
-
-                    const buff = base64ToArrayBuffer(data)
-                    buff_c = appendBuffer(buff_c, buff)
+                    
                     const blob = byteToBlob(buff_c);
-
                     const blobUrl = URL.createObjectURL(blob);
                     audioPlayer.src = blobUrl;
+                } else {
                     
-                    // audioPlayer.oncanplaythrough = function() {
-                    //     console.log('audioPlayer.oncanplaythrough')
-                    //     // audioPlayer.play();
-                    // };  
-                
+                    const buff = base64ToArrayBuffer(data)
+                    buff_c = appendBuffer(buff_c, buff)
+                    
+                    
                 }
                 if (playable) {
                     document.getElementById('audioPlayer').play();
@@ -600,7 +596,6 @@
                 }
             });
             socket.emit('stream_audio', {filename: filename});
-            document.getElementById('audioPlayer').play();
         }
 
         
