@@ -31,32 +31,22 @@ def del_song(db : SQLAlchemy, SongID):
     db.session.delete(song)
     db.session.commit()
 
-def search_song(db : SQLAlchemy, searchQuery):
-    song = Song.query.filter(Song.Title.ilike(f'%{searchQuery}%')).all()
-    q_album = Song.query.filter(Song.Album.ilike(f'%{searchQuery}%')).all()
-    q_artist_song = db.session.query(Artist, Song).join(Artist, Artist.SongID == Song.SongID).filter(Artist.Name.ilike(f'%{searchQuery}%')).all()
-    
-    # artist join song
-
-    
-    q_artist_song = [q[1] for q in q_artist_song]
-    search_query = [*song, *q_album, *q_artist_song]
+def search_song(db : SQLAlchemy, kw):
+   
     song_exist_list = []
     song_query = []
+ 
+    S_join_A = db.session.query(Song, Artist).join(Artist, Artist.SongID == Song.SongID)
+    search_query = S_join_A.filter(db.or_(Song.Album.ilike(f'%{kw}%'), Song.Title.ilike(f'%{kw}%'), Artist.Name.ilike(f'%{kw}%'))).all()
     for it in search_query:
-        if it.SongID not in song_exist_list:
-            song_exist_list.append(it.SongID)
+        if it[0].SongID not in song_exist_list:
+            song_exist_list.append(it[0].SongID)
         else:
             continue
-        song_data = to_dict(it)
-        
-        artist = Artist.query.filter_by(SongID=it.SongID)
-        song_data['Artist'] = artist[0].Name
-        for art in artist[1:]:
-            song_data['Artist'] += f', {art.Name}'
+        song_data = {**to_dict(it[0]), **to_dict(it[1])}
         song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
         song_query.append(song_data)
-    return song_query 
+    return song_query
 
 def add_user(db : SQLAlchemy, username, password):
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -106,7 +96,6 @@ def del_playlist(db : SQLAlchemy, PlaylistID):
 
 def rename_playlist(db : SQLAlchemy, PlaylistID, PlaylistName):
     playlist = Playlist.query.filter_by(PlaylistID=PlaylistID).first()
-    print(PlaylistID, playlist)
     playlist.PlaylistName = PlaylistName
     db.session.commit()
 

@@ -45,7 +45,6 @@ def search_result():
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
-    print(1)
     if request.method == 'POST':
         
         data = request.json
@@ -54,8 +53,6 @@ def signup():
 
         add_user(db, username, password)
     
-
-        print(username, password)
         return 'singup'
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -72,7 +69,6 @@ def login():
             session['userID'] = is_user_exist(username, password)
             session['username'] = username
                 
-            print(session)
             return jsonify({'message': 'Login successful'})
         else:
             return jsonify({'message': 'Invalid username or password'}), 401
