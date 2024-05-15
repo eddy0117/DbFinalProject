@@ -82,6 +82,10 @@
                                     </div>
                                     <div class="col-2">
                                         <p style="font-size: 25px;"><strong>時長</strong></p>
+                                    </div>
+                                    <div class="col-2">
+                                        <p style="font-size: 25px;"><strong>播放次數</strong></p>
+                                    </div>
                                 </div>
                             </div>
                         </li>
@@ -93,7 +97,7 @@
                             <div class="list-item">
                                 <div class="row">
                                     <div class="col-sm-1">
-                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}')">
+                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
                                             播放
                                         </button>
                                     </div>
@@ -110,7 +114,7 @@
                                         <p style="font-size: 20px;">{{ song.Duration }}</p>
                                     </div>
                                     <div class="col-1">
-                                        <p style="font-size: 20px;">{{ song.Duration }}</p>
+                                        <p style="font-size: 20px;">{{ song.PMale + song.PFemale}}</p>
                                     </div>
                                     <div class="col">
                                         <div class="btn-group" style="float: right;">
@@ -289,7 +293,7 @@
         };
         
 
-        function startplay(filename, title) {
+        function startplay(filename, title, SongID) {
             const socket = io();
             var playable = false;
             var buff_c = new Uint8Array();
@@ -319,7 +323,7 @@
                     document.getElementById('audioPlayer').pause();
                 }
             });
-            socket.emit('stream_audio', {filename: filename});
+            socket.emit('stream_audio', {filename: filename, SongID: SongID});
         }
 
 

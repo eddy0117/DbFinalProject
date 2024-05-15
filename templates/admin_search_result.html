@@ -82,6 +82,9 @@
                                     <div class="col-2">
                                         <p style="font-size: 25px;"><strong>時長</strong></p>
                                     </div>
+                                    <div class="col-2">
+                                        <p style="font-size: 25px;"><strong>播放次數</strong></p>
+                                    </div>
                             </div>
                         </li>
                     </ul>
@@ -92,9 +95,9 @@
                             <div class="list-item">
                                 <div class="row">
                                     <div class="col-sm-1">
-                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}')">
+                                        <!-- <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}')">
                                             播放
-                                        </button>
+                                        </button> -->
                                     </div>
                                     <div class="col-2">
                                         <p style="font-size: 20px;">{{ song.Title }}</p>
@@ -109,12 +112,13 @@
                                         <p style="font-size: 20px;">{{ song.Duration }}</p>
                                     </div>
                                     <div class="col-1">
-                                        <p style="font-size: 20px;">{{ song.Duration }}</p>
+                                        <p style="font-size: 20px;">{{ song.PMale + song.PFemale }}</p>
                                     </div>
                                     <div class="col">
                                         <div class="btn-group" style="float: right;">
-                                    
-        
+                                            <button class="btn btn-danger" type="button" onclick="delSong('{{ song.SongID }}')">
+                                                刪除歌曲
+                                            </button>
                                             <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapseExample{{ song.SongID|string }}">
                                                 i
                                             </button>
@@ -203,9 +207,7 @@
     </script>
     
     <script>
-        
-        
-    
+
         
         $('#searchForm').submit(function(event) {
                 // 防止表單的默認提交行為
@@ -217,68 +219,27 @@
                 
                 window.location.href = searchResultURL;
             });
-    </script>
 
-    <!-- 音訊串流 -->
-    <script>
-            
-        function base64ToArrayBuffer(base64) {
-            var binary_string =  window.atob(base64);
-            var len = binary_string.length;
-            var bytes = new Uint8Array( len );
-            for (var i = 0; i < len; i++)        {
-                bytes[i] = binary_string.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        function byteToBlob(byteArray) {
-        
-            return new Blob([byteArray], {type: 'audio/flac'});
-        }
-
-        function appendBuffer(buffer1, buffer2) {
-            var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
-            tmp.set(new Uint8Array(buffer1), 0);
-            tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
-            return tmp;
-        };
-        
-
-        function startplay(filename, title) {
-            const socket = io();
-            var playable = false;
-            var buff_c = new Uint8Array();
-            document.getElementById('nowPlayingTitle').innerHTML = '<strong>' + title + '</strong>';
-            // 接收音频数据块并播放
-            const audioPlayer = document.getElementById('audioPlayer');
-            socket.on('audio_chunk', function(data) {
-                if (data == 'end') {
-                    socket.disconnect();
-                    console.log('end')
-                    playable = true;
+        function delSong(SongID){
+            $.ajax({
+                type: 'POST',
+                url: '/delSong',
+                data: JSON.stringify({
+                    'SongID': SongID
+                }),
+                contentType: 'application/json',
+                success: function(response) {
+                    console.log(response);
+                    window.location.reload();
                     
-                    const blob = byteToBlob(buff_c);
-                    const blobUrl = URL.createObjectURL(blob);
-                    audioPlayer.src = blobUrl;
-                } else {
-                    
-                    const buff = base64ToArrayBuffer(data)
-                    buff_c = appendBuffer(buff_c, buff)
-                    
-                    
-                }
-                if (playable) {
-                    document.getElementById('audioPlayer').play();
-                }
-                else {
-                    document.getElementById('audioPlayer').pause();
+                },
+                error: function(error) {
+                    console.log(error);
                 }
             });
-            socket.emit('stream_audio', {filename: filename});
         }
 
 
-        
     </script>
+
 </html>

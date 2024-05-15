@@ -45,6 +45,13 @@ def addSong():
         add_song(db, data['Title'], data['Album'], data['ReleaseYear'], data['Duration'], data['PictureSrc'], data['SongSrc'], *data['ArtistName'])
     return 'addSong'
 
+@app.route('/delSong', methods=['POST', 'GET'])
+def delSong():
+    if request.method == 'POST':
+        data = request.json
+        del_song(db, data['SongID'])
+    return 'delSong'
+
 # normal user
 
 @app.route('/', methods=['POST', 'GET'])
