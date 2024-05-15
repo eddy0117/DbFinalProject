@@ -22,7 +22,7 @@
                     <p class="navbar-brand col-sm-1" id="showName" style="position: absolute; top: 50%; transform: translateY(-50%);"> </p>
                 </div>
                 <div class="col-1">
-                    <a class="nav-link active" aria-current="page" href="/" style="color: black;">首頁</a>
+                    <a class="nav-link active" aria-current="page" href="/dashboard" style="color: black;">首頁</a>
                 </div>
                     
                 <div class="col-10">
@@ -54,13 +54,12 @@
                                 <input type="text" class="form-control" id="searchInput">
                                 <button type="submit" class="btn btn-success mt-3">搜尋</button>
                             </form>
+                            
                     <!-- </div>
                 </div> -->
                 
             </div>
-            <!-- <div class="row fixed-width mt-3">
-                <p style="font-size: 22px;">搜尋結果</p>
-            </div> -->
+           
             <p class="mt-1" style="font-size: 25px;"><strong>共 {{session_data.song_data|length}} 首</strong></p>
             <div class="row fixed-width">
                 <div class="col">
@@ -82,7 +81,7 @@
                                     </div>
                                     <div class="col-2">
                                         <p style="font-size: 25px;"><strong>時長</strong></p>
-                                </div>
+                                    </div>
                             </div>
                         </li>
                     </ul>
@@ -115,17 +114,6 @@
                                     <div class="col">
                                         <div class="btn-group" style="float: right;">
                                     
-                                            <div class="dropdown">
-                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    加入播放清單
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                    {% for k, v in session_data.playlist.items() %}
-                                                    <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{ v[0] }}</a></li>
-                                                    {% endfor %}
-                                           
-                                                </ul>
-                                            </div>
         
                                             <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapseExample{{ song.SongID|string }}">
                                                 i
@@ -182,11 +170,15 @@
             <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-body" style="background-color: rgba(224, 38, 38, 0.3);">
                     <div class="col end-50">
-                        <p style="font-size: large; color: rgb(117, 24, 24);"><strong>歌曲已在清單中</strong></p>
+                        <p style="font-size: large; color: rgb(117, 24, 24);"><strong>歌曲已在資料庫中</strong></p>
                     </div> 
                 </div>
             </div>
         </div>
+
+
+        
+
     </body>
 
     <!-- 頁面載入 -->
@@ -202,8 +194,6 @@
                     if (nameView != undefined) {
                         nameView.innerHTML = response.session.username ;
                     }
-                    // sessionStorage.setItem('userID', JSON.stringify(response.session.userID));
-                    // sessionStorage.setItem('')
                 },
                 error: function(error) {
                     console.log(error);
@@ -214,50 +204,16 @@
     
     <script>
         
-        // 將歌曲加入播放清單
-        function addToPlaylist(SongID, PlaylistID) {
-            
-            $.ajax({
-                type: 'POST', 
-                url: '/addToPlaylist',
-                data: JSON.stringify({SongID: SongID, PlaylistID: PlaylistID}),
-                contentType: 'application/json',
-                success: function(response) {
-
-                    var toastElList = [].slice.call(document.querySelectorAll('.toast'))         
-                    var toastList = toastElList.map(function(toastEl) {
-                        return new bootstrap.Toast(toastEl)
-                    })
-
-                    if (response == 'success') {
-                        
-                        toastList[0].show();
- 
-                        setTimeout(function() {          
-                            toastList[0].hide();
-                        }, 1000);
-                       
-                    }
-                    else {
-                        toastList[1].show();
-                        setTimeout(function() {
-                            toastList[1].hide();
-                        }, 1000);
-                    }
-                    
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            })
-        }
+        
+    
+        
         $('#searchForm').submit(function(event) {
                 // 防止表單的默認提交行為
                 event.preventDefault();
                 
                 // 獲取使用者輸入的關鍵字
                 var keyword = $('#searchInput').val();
-                var searchResultURL = '/search_result?keyword=' + encodeURIComponent(keyword);
+                var searchResultURL = '/admin_search_result?keyword=' + encodeURIComponent(keyword);
                 
                 window.location.href = searchResultURL;
             });

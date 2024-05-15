@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+        <!-- <link rel="stylesheet" href="index.css"> -->
+        <title>線上撥放器</title>
+
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+        <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+        <style>
+            .fixed-width {
+                width: 100%;
+                max-width: 1000px;
+                margin: auto;
+            }
+    
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light">
+            <div class="container-fluid" style="height: 30px;">
+                <div class="col-1">
+                    <p class="navbar-brand col" id="showName" style="position: absolute; top: 50%; transform: translateY(-50%);"> </p>
+                </div>
+                <div class="col-1">
+                    <a class="nav-link active" aria-current="page" href="/dashboard" style="color: black;">首頁</a>
+                </div>
+                    
+                <div class="col-10">
+                    <a class="btn btn-danger" style="float: right;" href="/logout">登出</a>
+                </div>
+            </div>
+        </nav>
+
+        <nav class="navbar fixed-bottom navbar-light" style="height: 60px; background-color: rgba(75, 75, 75, 0.8)">
+            <div class="col-6 d-flex justify-content-center align-items-center">
+                <p id="nowPlayingTitle" style="color: azure; font-size:180%; position: absolute; top: 50%; transform: translateY(-50%);"><strong></strong></p>
+            </div>
+            <div class="col-6">
+                <audio controls id="audioPlayer" style="width:98%; height: 45px;">
+                    Your browser does not support the audio element.
+                </audio>       
+            </div>
+                              
+        </nav>
+
+        <div class="container">
+            <div class="row mt-5">
+                <div class="col">
+                    
+                    <!-- <div class="card">
+                        <div class="card-body"> -->
+                            <form id="searchForm" class="mt-3">
+                                <label for="search" class="form-label" style="font-size: large;">搜尋歌曲</label>
+                                <input type="text" class="form-control" id="searchInput">
+                                <button type="submit" class="btn btn-success mt-3">搜尋</button>
+
+                              
+                            </form>
+                            <button class="btn btn-success mt-3" style="float: left;" data-bs-toggle="modal" data-bs-target="#addSongModal">新增歌曲</button>
+                    <!-- </div>
+                </div> -->
+                
+            </div>     
+         
+        </div>
+        <!-- 新增歌曲訊息框 -->
+        <div class="modal fade" id="addSongModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addSongModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">新增歌曲</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- 彈出視窗的內容 -->
+                        <form id="addSongForm">
+                            <div class="mb-3">
+                                <label for="Title" class="form-label">歌曲名稱</label>
+                                <input type="text" class="form-control" id="Title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="Album" class="form-label">專輯名稱</label>
+                                <input type="text" class="form-control" id="Album" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="ArtistName" class="form-label">創作者 (split by ",")</label>
+                                <input type="text" class="form-control" id="ArtistName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="ReleaseYear" class="form-label">發行年度</label>
+                                <input type="text" class="form-control" id="ReleaseYear" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="Duration" class="form-label">時長</label>
+                                <input type="text" class="form-control" id="Duration" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="PictureSrc" class="form-label">歌曲封面位置</label>
+                                <input type="text" class="form-control" id="PictureSrc" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="SongSrc" class="form-label">歌曲檔案位置</label>
+                                <input type="text" class="form-control" id="SongSrc" required>
+                            </div>
+                            <button type="submit" class="btn btn-success" data-bs-dismiss="">確定</button>
+                            
+                        </form>
+                    </div>
+            
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增歌曲成功訊息框 -->
+        <div class="modal fade" id="ASsuccessModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ASsuccessModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ASsuccessModalLabel">新增成功</h5>
+                    </div>
+                    <div class="modal-body">
+                        <!-- 彈出視窗的內容 -->
+                        新增歌曲成功
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    
+        
+    </body>
+    <!-- 頁面載入 -->
+    <script>
+        $(document).ready(function() {
+            // 在網頁載入時將session透過ajax請求取得
+            $.ajax({
+                type: 'POST',
+                url: '/getSession',
+                success: function(response) {
+                    console.log(response.session);
+                    sessionStorage.setItem('userID', JSON.stringify(response.session.userID));
+
+                    var nameView = document.getElementById('showName');
+                    if (response.session.username != undefined) {
+                        nameView.innerHTML = response.session.username ;
+                    } 
+                    
+                    if (response.session.isLogin == true) {
+                        console.log(response.session.isLogin);
+                    }
+                    // else {
+                    //     var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    //     myModal.show();
+                    // }
+                    
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    </script>
+
+    <script>
+       $('#addSongForm').submit(function(event) {
+                // 防止表單的默認提交行為
+                event.preventDefault();
+                
+                // 獲取使用者輸入的關鍵字
+                var Title = $('#Title').val();
+                var Album = $('#Album').val();
+                var ReleaseYear = $('#ReleaseYear').val();
+                var Duration = $('#Duration').val();
+                var PictureSrc = $('#PictureSrc').val();
+                var SongSrc = $('#SongSrc').val();
+                var ArtistName = $('#ArtistName').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/addSong',
+                    data: JSON.stringify({
+                        Title: Title,
+                        Album: Album,
+                        ReleaseYear: ReleaseYear,
+                        Duration: Duration,
+                        PictureSrc: PictureSrc,
+                        SongSrc: SongSrc,
+                        ArtistName: ArtistName
+                    }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        
+                        var ASsuccessModal = new bootstrap.Modal(document.getElementById('ASsuccessModal'));
+                        $('#addSongModal').modal('hide');
+                        ASsuccessModal.show();
+                        console.log(response);
+                        setTimeout(function() {
+                            ASsuccessModal.hide();
+                        }, 1000)
+                      
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            
+            });
+        // 搜尋事件
+        $('#searchForm').submit(function(event) {
+            // 防止表單的默認提交行為
+            event.preventDefault();
+            
+            // 獲取使用者輸入的關鍵字
+            var keyword = $('#searchInput').val();
+            var searchResultURL = '/admin_search_result?keyword=' + encodeURIComponent(keyword);
+            
+            window.location.href = searchResultURL;
+        });
+    </script>
+
+    <script>
+
+        // 登入事件
+        $('#loginForm').submit(function(event) {
+            // 防止表單的默認提交行為
+            event.preventDefault();
+            
+            // 獲取使用者輸入的帳號和密碼
+            var username = $('#username').val();
+            var password = $('#password').val();
+            
+            // 使用 AJAX 發送 POST 請求到 Flask 的後端路由進行認證
+            $.ajax({
+                type: 'POST',
+                url: '/login', // 請替換成你的後端路由
+                data: JSON.stringify({username: username, password: password}),
+                contentType: 'application/json',
+                success: function(response) {
+
+                    // 處理認證成功後的回應
+                    var LsuccessModal = new bootstrap.Modal(document.getElementById('LsuccessModal'));
+                    $('#loginModal').modal('hide');
+                    LsuccessModal.show();
+                    console.log(response);
+
+                    setTimeout(function() {
+                        LsuccessModal.hide();
+                        window.location.reload();
+                    }, 1000)
+                    
+                },
+                error: function(error) {
+                    // 處理錯誤情況
+                    var LfailedModal = new bootstrap.Modal(document.getElementById('LfailedModal'));
+                    $('#loginModal').modal('hide');
+                    LfailedModal.show();
+                    setTimeout(function() {
+                        LfailedModal.hide();
+                    }, 800)
+                    setTimeout(function() {
+                        $('#loginModal').modal('show');
+                    }, 800)
+                }
+            });
+        });
+
+        // 註冊事件
+        $('#signupForm').submit(function(event) {
+            // 防止表單的默認提交行為
+            event.preventDefault();
+            
+            // 獲取使用者輸入的帳號和密碼
+            var username = $('#signup-username').val();
+            var password = $('#signup-password').val();
+            
+            // 使用 AJAX 發送 POST 請求到 Flask 的後端路由進行認證
+            $.ajax({
+                type: 'POST',
+                url: '/signup', // 請替換成你的後端路由
+                data: JSON.stringify({username: username, password: password}),
+                contentType: 'application/json',
+                success: function(response) {
+                    // 處理認證成功後的回應
+                    var SsuccessModal = new bootstrap.Modal(document.getElementById('SsuccessModal'));
+                    $('#signupModal').modal('hide');
+                    SsuccessModal.show();
+                    
+                    // 兩秒後關閉註冊成功訊息框並返回登入介面
+                    setTimeout(function() {
+                        SsuccessModal.hide();
+                        
+                        $('#loginModal').modal('show');
+                    }, 2000);
+                },
+                error: function(error) {
+                    // 處理錯誤情況
+                    console.log(error);
+                }
+            });
+        });
+    </script>
+
+    <!-- 音訊串流 -->
+    <script>
+            
+        function base64ToArrayBuffer(base64) {
+            var binary_string =  window.atob(base64);
+            var len = binary_string.length;
+            var bytes = new Uint8Array( len );
+            for (var i = 0; i < len; i++)        {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function byteToBlob(byteArray) {
+        
+            return new Blob([byteArray], {type: 'audio/flac'});
+        }
+
+        function appendBuffer(buffer1, buffer2) {
+            var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+            tmp.set(new Uint8Array(buffer1), 0);
+            tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
+            return tmp;
+        };
+        
+
+        function startplay(filename, title) {
+            const socket = io();
+            var playable = false;
+            var buff_c = new Uint8Array();
+            document.getElementById('nowPlayingTitle').innerHTML = '<strong>' + title + '</strong>';
+            // 接收音频数据块并播放
+            const audioPlayer = document.getElementById('audioPlayer');
+            socket.on('audio_chunk', function(data) {
+                if (data == 'end') {
+                    socket.disconnect();
+                    console.log('end')
+                    playable = true;
+                    
+                    const blob = byteToBlob(buff_c);
+                    const blobUrl = URL.createObjectURL(blob);
+                    audioPlayer.src = blobUrl;
+                } else {
+                    
+                    const buff = base64ToArrayBuffer(data)
+                    buff_c = appendBuffer(buff_c, buff)
+                    
+                    
+                }
+                if (playable) {
+                    document.getElementById('audioPlayer').play();
+                }
+                else {
+                    document.getElementById('audioPlayer').pause();
+                }
+            });
+            socket.emit('stream_audio', {filename: filename});
+        }
+
+        
+    </script>
+</html>

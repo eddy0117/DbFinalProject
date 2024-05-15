@@ -48,9 +48,9 @@ def search_song(db : SQLAlchemy, kw):
         song_query.append(song_data)
     return song_query
 
-def add_user(db : SQLAlchemy, username, password):
+def add_user(db : SQLAlchemy, username, password, Gender):
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-    user = User(username=username, password=password, RegistrationDate=current_time)
+    user = User(username=username, password=password, RegistrationDate=current_time, Gender=Gender)
     db.session.add(user)
     db.session.commit()
 

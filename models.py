@@ -17,6 +17,8 @@ class Song(db.Model):
     Duration = db.Column(db.Integer, unique=False, nullable=False)
     PictureSrc = db.Column(db.String(80), unique=False, nullable=True)
     SongSrc = db.Column(db.String(80), unique=True, nullable=True)
+    PMale = db.Column(db.Integer, unique=False, nullable=True)
+    PFemale = db.Column(db.Integer, unique=False, nullable=True)
     # SongList = db.relationship('SongList', backref='song')
 
     def __init__(self, Title, Album, ReleaseYear, Duration, PictureSrc, SongSrc):
@@ -26,6 +28,8 @@ class Song(db.Model):
         self.Duration = Duration
         self.PictureSrc = PictureSrc
         self.SongSrc = SongSrc
+        self.PMale = 0
+        self.PFemale = 0
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -44,13 +48,15 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), unique=False, nullable=False)
     RegistrationDate = db.Column(db.String(120), unique=False, nullable=False)
+    Gender = db.Column(db.String(10), unique=False, nullable=True)
 
     # Playlist = db.relationship('Playlist', backref='user')
 
-    def __init__(self, username, password, RegistrationDate):
+    def __init__(self, username, password, RegistrationDate, Gender):
         self.username = username
         self.password = password
         self.RegistrationDate = RegistrationDate
+        self.Gender = Gender
 
 class Playlist(db.Model):
     __tablename__ = 'playlist'

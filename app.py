@@ -16,7 +16,36 @@ socketio = SocketIO(app)
 
 db.init_app(app)
 
+# admin
 
+@app.route('/dashboard', methods=['POST', 'GET'])
+def dashboard():
+    if request.method == 'GET':
+        if session['isLogin'] == True and session['userID'] == 0:
+            return render_template('dashboard.html', session_data=session)
+        else:
+            return redirect('/')
+        
+@app.route('/admin_search_result', methods=['POST', 'GET'])
+def admin_search_result():
+    if request.method == 'GET':
+        keyword = request.args.get('keyword')
+        song_data = search_song(db, keyword)
+        session['song_data'] = song_data
+        if session['isLogin'] == True and session['userID'] == 0:
+            return render_template('admin_search_result.html', session_data=session)
+        else:
+            return redirect('/')
+        
+@app.route('/addSong', methods=['POST', 'GET'])
+def addSong():
+    if request.method == 'POST':
+        data = request.json
+        data['ArtistName'] = data['ArtistName'].split(',')
+        add_song(db, data['Title'], data['Album'], data['ReleaseYear'], data['Duration'], data['PictureSrc'], data['SongSrc'], *data['ArtistName'])
+    return 'addSong'
+
+# normal user
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -27,6 +56,8 @@ def index():
         session['playlist'] = playlist_pkg
         
     return render_template('index.html', session_data=session)
+
+
 
 @app.route('/getSession', methods=['POST', 'GET'])
 def getSession():
@@ -42,6 +73,9 @@ def search_result():
             return redirect('/')  
         else:
             return render_template('search_result.html', session_data=session)
+        
+
+
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -50,8 +84,9 @@ def signup():
         data = request.json
         username = data['username']
         password = data['password']
+        Gender = data['Gender']
 
-        add_user(db, username, password)
+        add_user(db, username, password, Gender)
     
         return 'singup'
 
@@ -62,15 +97,23 @@ def login():
         data = request.json
         username = data['username']
         password = data['password']
-
+        print(username, password)
         # 判斷使用者是否存在，並回傳使用者ID和播放清單陣列
-        if is_user_exist(username, password):
+        if username == 'admin' and password == 'password':
+            print('admin')
+            session['isLogin'] = True
+            session['userID'] = 0
+            session['username'] = username
+            return jsonify({'message': 'admin'})
+        
+        elif is_user_exist(username, password):
             session['isLogin'] = True
             session['userID'] = is_user_exist(username, password)
-            session['username'] = username
-                
+            session['username'] = username    
             return jsonify({'message': 'Login successful'})
+        
         else:
+
             return jsonify({'message': 'Invalid username or password'}), 401
         
 @app.route('/logout', methods=['POST', 'GET'])
@@ -119,7 +162,19 @@ def delSongFromPlaylist():
 @socketio.on('stream_audio')
 def stream_audio(data):
 
-    path = 'E:/Programs/React/DbFinalProject/static/songs/' + data['filename']
+    userID = session['userID']
+    user = User.query.filter_by(UserID=userID).first()
+    song = Song.query.filter_by(SongID=data['SongID']).first()
+    if user.Gender == 'male':
+        song.PMale += 1
+        db.session.commit()
+    else:
+        song.PFemale += 1
+        db.session.commit()
+
+    
+    
+    path = 'static/songs/' + data['filename']
     chunk_size = 2048000
    
     with open(path, 'rb') as f:
