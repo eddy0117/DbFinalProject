@@ -8,6 +8,19 @@ import time
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # db = SQLAlchemy(app)
 
+def get_songs_data(songlist):
+    song_query = []
+    for s in songlist:
+        song = Song.query.filter_by(SongID=s.SongID).first()
+        song_data = to_dict(song)
+        artist = Artist.query.filter_by(SongID=s.SongID)
+        song_data['Artist'] = artist[0].Name
+        for art in artist[1:]:
+            song_data['Artist'] += f', {art.Name}'
+        song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
+        song_query.append(song_data)
+    return song_query
+
 def to_dict(self):
     return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
@@ -48,6 +61,10 @@ def search_song(db : SQLAlchemy, kw):
         song_query.append(song_data)
     return song_query
 
+def get_topN_famous_song(db : SQLAlchemy, n):
+    songs = Song.query.order_by((Song.PFemale + Song.PMale).desc()).limit(n).all()
+    return get_songs_data(songs)
+
 def add_user(db : SQLAlchemy, username, password, Gender):
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
     user = User(username=username, password=password, RegistrationDate=current_time, Gender=Gender)
@@ -66,16 +83,7 @@ def get_user_playlist(db : SQLAlchemy, UserID):
     
     for it in playlist:
         songlist = SongList.query.filter_by(PlaylistID=it.PlaylistID).all()
-        song_query = []
-        for s in songlist:
-            song = Song.query.filter_by(SongID=s.SongID).first()
-            song_data = to_dict(song)
-            artist = Artist.query.filter_by(SongID=s.SongID)
-            song_data['Artist'] = artist[0].Name
-            for art in artist[1:]:
-                song_data['Artist'] += f', {art.Name}'
-            song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
-            song_query.append(song_data)
+        song_query = get_songs_data(songlist)
         playlist_pkg[str(it.PlaylistID)] = [it.PlaylistName, f"{it.CreationDate.split('-')[0]}年{it.CreationDate.split('-')[1]}月{it.CreationDate.split('-')[2].split(' ')[0]}日", song_query]
     return playlist_pkg
 
