@@ -54,6 +54,7 @@ def search_song(db : SQLAlchemy, kw):
     S_join_A = db.session.query(Song, Artist).join(Artist, Artist.SongID == Song.SongID)
     search_query = S_join_A.filter(db.or_(Song.Album.ilike(f'%{kw}%'), Song.Title.ilike(f'%{kw}%'), Artist.Name.ilike(f'%{kw}%'))).all()
     for it in search_query:
+        # 去重
         if it[0].SongID not in song_exist_list:
             song_exist_list.append(it[0].SongID)
         else:
@@ -69,7 +70,8 @@ def get_topN_famous_song(n):
 
 def get_topN_famous_album(n):
     songs = []
-    albums = db.session.query(Song.Album, db.func.sum(Song.PFemale + Song.PMale)).group_by(Song.Album).order_by(db.func.sum(Song.PFemale + Song.PMale).desc()).limit(n)
+    albums = db.session.query(Song.Album, db.func.sum(Song.PFemale + Song.PMale))\
+    .group_by(Song.Album).order_by(db.func.sum(Song.PFemale + Song.PMale).desc()).limit(n)
     for it in albums:
         # it[0] is Album name, it[1] is Pcount
         song_list = Song.query.filter(Song.Album == it[0]).all()
@@ -81,7 +83,8 @@ def get_topN_famous_artist(n):
     songs = []
     
     S_join_A = db.session.query(Song, Artist).join(Artist, Artist.SongID == Song.SongID)
-    artists = db.session.query(Artist.Name, db.func.sum(Song.PFemale + Song.PMale)).join(Artist, Artist.SongID == Song.SongID).group_by(Artist.Name).order_by(db.func.sum(Song.PFemale + Song.PMale).desc()).limit(n).all()
+    artists = db.session.query(Artist.Name, db.func.sum(Song.PFemale + Song.PMale)).join(Artist, Artist.SongID == Song.SongID)\
+        .group_by(Artist.Name).order_by(db.func.sum(Song.PFemale + Song.PMale).desc()).limit(n).all()
     for artist in artists:
         song_query = []
         # artist[0] is Artist name, artist[1] is Pcount

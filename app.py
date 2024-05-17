@@ -194,7 +194,7 @@ def stream_audio(data):
 
     
     
-    path = 'static/songs/' + data['filename']
+    path = 'Z:/eddy/電腦/Not All Purchased Music (some form copy)/' + data['filename']
     chunk_size = 2048000
    
     with open(path, 'rb') as f:
