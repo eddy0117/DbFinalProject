@@ -22,9 +22,13 @@ TOP_N = 10
 
 @app.route('/dashboard', methods=['POST', 'GET'])
 def dashboard():
+    top_data = {}
     if request.method == 'GET':
         if session['isLogin'] == True and session['userID'] == 0:
-            return render_template('dashboard.html', session_data=session)
+            top_data['top_n_songs_data'] = get_topN_famous_song(TOP_N)
+            top_data['top_n_albums_data'], top_data['top_n_albums_Pcount'] = get_topN_famous_album(TOP_N)
+            top_data['top_n_artists_data'], top_data['top_n_artists_Pcount'], top_data['top_n_artists_name'] = get_topN_famous_artist(TOP_N)
+            return render_template('dashboard.html', session_data=session, top_data=top_data)
         else:
             return redirect('/')
         

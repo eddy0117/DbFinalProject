@@ -103,7 +103,7 @@
                                                     <div class="list-item">
                                                         <div class="row">
                                                             <div class="col-1">
-                                                                <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
+                                                                <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc | urlencode }}', '{{ song.Title | urlencode }}', '{{ song.SongID }}')">
                                                                     播放
                                                                 </button>
                                                             </div>
@@ -182,7 +182,7 @@
                                                 <div class="list-item">
                                                     <div class="row">
                                                         <div class="col-sm-1">
-                                                            <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
+                                                            <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc | urlencode }}', '{{ song.Title | urlencode }}', '{{ song.SongID }}')">
                                                                 播放
                                                             </button>
                                                         </div>
@@ -302,7 +302,7 @@
                                                                             <div class="list-item">
                                                                                 <div class="row">
                                                                                     <div class="col-1">
-                                                                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
+                                                                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc | urlencode }}', '{{ song.Title | urlencode }}', '{{ song.SongID }}')">
                                                                                             播放
                                                                                         </button>
                                                                                     </div>
@@ -428,7 +428,7 @@
                                                                             <div class="list-item">
                                                                                 <div class="row">
                                                                                     <div class="col-1">
-                                                                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
+                                                                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc | urlencode }}', '{{ song.Title | urlencode }}', '{{ song.SongID }}')">
                                                                                             播放
                                                                                         </button>
                                                                                     </div>
@@ -949,6 +949,8 @@
             const socket = io();
             var playable = false;
             var buff_c = new Uint8Array();
+            title = decodeURIComponent(title)
+            filename = decodeURIComponent(filename)
             document.getElementById('nowPlayingTitle').innerHTML = '<strong>' + title + '</strong>';
             // 接收音频数据块并播放
             const audioPlayer = document.getElementById('audioPlayer');
