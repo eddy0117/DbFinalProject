@@ -10,28 +10,18 @@ import time
 
 def get_songs_data(songlist):
     song_query = []
-    if isinstance(songlist[0], Song):
-        for s in songlist:
-            song = Song.query.filter_by(SongID=s.SongID).first()
-            song_data = to_dict(song)
-            artist = Artist.query.filter_by(SongID=s.SongID)
-            song_data['Artist'] = artist[0].Name
-            for art in artist[1:]:
-                song_data['Artist'] += f', {art.Name}'
-            song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
-            song_query.append(song_data)
-        return song_query
-    else:
-        for s in songlist:
-            song = Song.query.filter_by(SongID=s[0].SongID).first()
-            song_data = to_dict(song)
-            artist = Artist.query.filter_by(SongID=s[0].SongID)
-            song_data['Artist'] = artist[0].Name
-            for art in artist[1:]:
-                song_data['Artist'] += f', {art.Name}'
-            song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
-            song_query.append(song_data)
-        return song_query
+  
+    for s in songlist:
+        song = Song.query.filter_by(SongID=s.SongID).first()
+        song_data = to_dict(song)
+        artist = Artist.query.filter_by(SongID=s.SongID)
+        song_data['Artist'] = artist[0].Name
+        for art in artist[1:]:
+            song_data['Artist'] += f', {art.Name}'
+        song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
+        song_query.append(song_data)
+    return song_query
+    
 
 def to_dict(self):
     return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -89,14 +79,24 @@ def get_topN_famous_album(n):
 
 def get_topN_famous_artist(n):
     songs = []
+    
     S_join_A = db.session.query(Song, Artist).join(Artist, Artist.SongID == Song.SongID)
     artists = db.session.query(Artist.Name, db.func.sum(Song.PFemale + Song.PMale)).join(Artist, Artist.SongID == Song.SongID).group_by(Artist.Name).order_by(db.func.sum(Song.PFemale + Song.PMale).desc()).limit(n).all()
     for artist in artists:
+        song_query = []
         # artist[0] is Artist name, artist[1] is Pcount
         songlist = S_join_A.filter(Artist.Name == artist[0]).all()
-        songs.append(get_songs_data(songlist))
-    
-    return songs, [it[1] for it in artists]
+        for s in songlist:
+            song = Song.query.filter_by(SongID=s[0].SongID).first()
+            song_data = to_dict(song)
+            artist = Artist.query.filter_by(SongID=s[0].SongID)
+            song_data['Artist'] = artist[0].Name
+            for art in artist[1:]:
+                song_data['Artist'] += f', {art.Name}'
+            song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
+            song_query.append(song_data)
+        songs.append(song_query)
+    return songs, [it[1] for it in artists], [it[0] for it in artists]
 
 def add_user(db : SQLAlchemy, username, password, Gender):
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())

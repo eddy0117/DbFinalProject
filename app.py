@@ -68,7 +68,7 @@ def index():
         session['playlist'] = playlist_pkg
         top_data['top_n_songs_data'] = get_topN_famous_song(TOP_N)
         top_data['top_n_albums_data'], top_data['top_n_albums_Pcount'] = get_topN_famous_album(TOP_N)
-        top_data['top_n_artists_data'], top_data['top_n_artists_Pcount'] = get_topN_famous_artist(TOP_N)
+        top_data['top_n_artists_data'], top_data['top_n_artists_Pcount'], top_data['top_n_artists_name'] = get_topN_famous_artist(TOP_N)
     return render_template('index.html', session_data=session, top_data=top_data)
 
 
