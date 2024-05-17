@@ -16,6 +16,8 @@ socketio = SocketIO(app)
 
 db.init_app(app)
 
+TOP_N = 10
+
 # admin
 
 @app.route('/dashboard', methods=['POST', 'GET'])
@@ -56,13 +58,18 @@ def delSong():
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
+    top_data = {}
     if 'isLogin' not in session:
         session['isLogin'] = False
-    if session['isLogin']:
+    elif session['isLogin']:
+         # 將熱門歌曲系列存入session會導致session過大，因此存入top_data不根據用戶而是全域
+        
         playlist_pkg = get_user_playlist(db, session['userID'])
         session['playlist'] = playlist_pkg
-        
-    return render_template('index.html', session_data=session)
+        top_data['top_n_songs_data'] = get_topN_famous_song(TOP_N)
+        top_data['top_n_albums_data'], top_data['top_n_albums_Pcount'] = get_topN_famous_album(TOP_N)
+        top_data['top_n_artists_data'], top_data['top_n_artists_Pcount'] = get_topN_famous_artist(TOP_N)
+    return render_template('index.html', session_data=session, top_data=top_data)
 
 
 
@@ -73,6 +80,8 @@ def getSession():
 @app.route('/search_result', methods=['POST', 'GET'])
 def search_result():
     if request.method == 'GET':
+        session.pop('top_n_songs_data', None)
+        session.pop('top_n_albums_data', None)
         keyword = request.args.get('keyword')
         song_data = search_song(db, keyword)
         session['song_data'] = song_data
@@ -197,4 +206,4 @@ def stream_audio(data):
 if __name__ == "__main__":
     
     # app.run(debug=True)
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host='192.168.2.107')

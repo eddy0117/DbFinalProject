@@ -166,91 +166,222 @@
                 
                 
                 <div class="row mt-5">
-                    <p>大家都在聽</p>
-                    <div class="col">
-                        <ul class="list-group mt-3">                            
-                            {% for song in session_data.song_data %}     
-                            <li class="list-group-item">     
-                                <div class="list-item">
-                                    <div class="row">
-                                        <div class="col-sm-1">
-                                            <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
-                                                播放
-                                            </button>
-                                        </div>
-                                        <div class="col-2">
-                                            <p style="font-size: 20px;">{{ song.Title }}</p>
-                                        </div>
-                                        <div class="col-2">
-                                            <p style="font-size: 20px;">{{ song.Album }}</p>
-                                        </div>
-                                        <div class="col-2">
-                                            <p style="font-size: 20px;">{{ song.Name }}</p>
-                                        </div>
-                                        <div class="col-2">
-                                            <p style="font-size: 20px;">{{ song.Duration }}</p>
-                                        </div>
-                                        <div class="col-1">
-                                            <p style="font-size: 20px;">{{ song.PMale + song.PFemale}}</p>
-                                        </div>
-                                        <div class="col">
-                                            <div class="btn-group" style="float: right;">
-                                        
-                                                <div class="dropdown">
-                                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        加入播放清單
-                                                    </button>
-                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                        {% for k, v in session_data.playlist.items() %}
-                                                        <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{ v[0] }}</a></li>
-                                                        {% endfor %}
-                                               
-                                                    </ul>
-                                                </div>
-            
-                                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapseExample{{ song.SongID|string }}">
-                                                    i
-                                                </button>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="row">
-                                        <!-- 展開按鈕卡片 -->
-                                        <div class="collapse" id="collapseExample{{ song.SongID|string }}">
-               
-                                                <div class="card card-body">
-                                                    <div class="container">
-                                                        <div class="row-sm-3">
-                                                            <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" onerror="this.src='static/no_img.jpg'" width="150" height="150">
-                                                        </div>              
-                                                        <div class="row">
-                                                            <p>創作者 : {{ song.Artist }}</p>
-                                                            <p>所屬專輯 : {{ song.Album }}</p>
-                                                            <p>發行年分 : {{ song.ReleaseYear }}</p>
-                                                            <p>時長 : {{ song.Duration }}</p>                                                
+
+                        <div class="accordion" id="accordionPanelsStayOpenExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                        <p style="font-size: 30px;"><strong>熱門歌曲 TOP10</strong></p>
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingOne">
+                                    <div class="accordion-body">
+                                        <ul class="list-group mt-3">                            
+                                            {% for song in top_data.top_n_songs_data %}     
+                                            <li class="list-group-item">     
+                                                <div class="list-item">
+                                                    <div class="row">
+                                                        <div class="col-sm-1">
+                                                            <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
+                                                                播放
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <p style="font-size: 20px;">{{ song.Title }}</p>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <p style="font-size: 20px;">{{ song.Album }}</p>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <p style="font-size: 20px;">{{ song.Name }}</p>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <p style="font-size: 20px;">{{ song.Duration }}</p>
+                                                        </div>
+                                                        <div class="col-1">
+                                                            <p style="font-size: 20px;">{{ song.PMale + song.PFemale}}</p>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="btn-group" style="float: right;">
+                                                        
+                                                                <div class="dropdown">
+                                                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        加入播放清單
+                                                                    </button>
+                                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                                        {% for k, v in session_data.playlist.items() %}
+                                                                        <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{ v[0] }}</a></li>
+                                                                        {% endfor %}
+                                                               
+                                                                    </ul>
+                                                                </div>
+                            
+                                                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapseExample{{ song.SongID|string }}">
+                                                                    i
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                         
                                                     </div>
-                                                    
-                                               
-                                                </div>
-                        
-                                        </div>
-    
+                                                    <div class="row">
+                                                        <!-- 展開按鈕卡片 -->
+                                                        <div class="collapse" id="collapseExample{{ song.SongID|string }}">
+                               
+                                                                <div class="card card-body">
+                                                                    <div class="container">
+                                                                        <div class="row-sm-3">
+                                                                            <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" onerror="this.src='static/no_img.jpg'" width="150" height="150">
+                                                                        </div>              
+                                                                        <div class="row">
+                                                                            <p>創作者 : {{ song.Artist }}</p>
+                                                                            <p>所屬專輯 : {{ song.Album }}</p>
+                                                                            <p>發行年分 : {{ song.ReleaseYear }}</p>
+                                                                            <p>時長 : {{ song.Duration }}</p>                                                
+                                                                        </div>
+                                                                        
+                                                                    </div>
+                                                                    
+                                                               
+                                                                </div>
+                                        
+                                                        </div>
+                    
+                                                    </div>  
+                                            </li>  
+                                            {% endfor %}
+                                        </ul>
                                     </div>
-                                    
-                                    
-                            </li>  
-                            {% endfor %}
-                        </ul>
-                 
-                    </div>
-                    
-                    
-                </div>    
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                
+                <div class="row mt-5">
 
-            </div>
+                    <div class="accordion" id="accordionPanelsStayOpenExample2">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingOne2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne2" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne2">
+                                    <p style="font-size: 30px;"><strong>熱門專輯 TOP10</strong></p>
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseOne2" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingOne2">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col">                                    
+                                            <ul class="list-group mt-3">         
+                                                {% for album in top_data.top_n_albums_data %}     
+                                                <li class="list-group-item">     
+                                                    <div class="list-item">
+                                                        <div class="row">
+                                                            <div class="col-1"></div>
+                                                            <div class="col-8 justify-content-center align-items-center">
+                                                                <p style="font-size: 20px;"><strong>{{ album[0].Album }}</strong></p>
+                                                                
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <p><strong>{{ top_data.top_n_albums_Pcount[loop.index] }}</strong></p>
+                                                            </div>
+                                                            <div class="col-1">
+                                                                <div class="btn-group" style="float: right;">
+                                                                                                             
+                                                                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExampleAlbum{{ album[0].SongID|string }}" aria-expanded="false" aria-controls="collapseExampleAlbum{{ album[0].SongID|string }}">
+                                                                        展開
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                        <!-- 展開按鈕卡片 -->
+                                                        <div class="row">                                                         
+                                                            <div class="collapse" id="collapseExampleAlbum{{ album[0].SongID|string }}">
+                                                                <div class="card card-body">
+                                                                    <ul class="list-group mt-3">                            
+                                                                        {% for song in album %}     
+                                                                        <li class="list-group-item">     
+                                                                            <div class="list-item">
+                                                                                <div class="row">
+                                                                                    <div class="col-1">
+                                                                                        <button class="btn btn-secondary" onclick="startplay('{{ song.SongSrc }}', '{{ song.Title }}', '{{ song.SongID }}')">
+                                                                                            播放
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col-2">
+                                                                                        <p style="font-size: 20px;">{{ song.Title }}</p>
+                                                                                    </div>
+                                                                                    <div class="col-2">
+                                                                                        <p style="font-size: 20px;">{{ song.Album }}</p>
+                                                                                    </div>
+                                                                                    <div class="col-2">
+                                                                                        <p style="font-size: 20px;">{{ song.Name }}</p>
+                                                                                    </div>
+                                                                                    <div class="col-2">
+                                                                                        <p style="font-size: 20px;">{{ song.Duration }}</p>
+                                                                                    </div>
+                                                                                    <div class="col-1">
+                                                                                        <p style="font-size: 20px;">{{ song.PMale + song.PFemale}}</p>
+                                                                                    </div>
+                                                                                 
+                                                                                  
+                                                                                    <div class="col">
+                                                                                        <div class="btn-group" style="float: right;">
+                                                                                            <div class="dropdown">
+                                                                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                                                    加入播放清單
+                                                                                                </button>
+                                                                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                                                                    {% for k, v in session_data.playlist.items() %}
+                                                                                                    <li><a class="dropdown-item" style="font-size: 12px;" onclick="addToPlaylist('{{ song.SongID }}', '{{ k }}')">{{ v[0] }}</a></li>
+                                                                                                    {% endfor %}
+                                                                                           
+                                                                                                </ul>
+                                                                                            </div>
+                                                                                            <button class="btn btn-primary" style="float: right;" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample{{ k|string }}{{ song.SongID|string }}" aria-expanded="false" aria-controls="collapseExample{{ k|string }}{{ song.SongID|string }}">
+                                                                                                i
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        
+                                                                                    </div>
+                                                                                    
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <!-- 展開按鈕卡片 -->
+                                                                                    <div class="collapse" id="collapseExample{{ k|string }}{{ song.SongID|string }}">
+                                                                                        <div class="card card-body">
+                                                                                            <div class="container">
+                        
+                                                                                           
+                                                                                                <div class="row-sm-3">
+                                                                                                    <img class="img-thumbnail rounded float-start" src="{{ url_for('static', filename=song.PictureSrc) }}" onerror="this.src='static/no_img.jpg'" width="150" height="150">
+                                                                                                </div>  
+                                                                                                <div class="row">
+                                                                                                    <p>創作者 : {{ song.Artist }}</p>
+                                                                                                    <p>所屬專輯 : {{ song.Album }}</p>
+                                                                                                    <p>發行年分 : {{ song.ReleaseYear }}</p>
+                                                                                                    <p>時長 : {{ song.Duration }}</p>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>                   
+                                                        </div>
+                                                </li>  
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>   
+                </div>
+            </div>    
+        </div>
               
          
             
@@ -416,7 +547,25 @@
             </div>
         </div>
     
-        
+        <!-- 播放清單加入提示框 -->
+        <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
+            <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body" style="background-color: rgba(39, 226, 39, 0.3);">
+                    <div class="col end-50">
+                        <p style="font-size: large; color: rgb(18, 78, 3);"><strong>加入成功</strong></p>
+                    </div> 
+                </div>
+            </div>
+        </div>
+        <div class="position-fixed bottom-0 end-0 p-5" style="z-index: 5">
+            <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body" style="background-color: rgba(224, 38, 38, 0.3);">
+                    <div class="col end-50">
+                        <p style="font-size: large; color: rgb(117, 24, 24);"><strong>歌曲已在清單中</strong></p>
+                    </div> 
+                </div>
+            </div>
+        </div>
     </body>
     <!-- 頁面載入 -->
     <script>
@@ -703,6 +852,43 @@
             socket.emit('stream_audio', {filename: filename, SongID: SongID});
         }
 
+        // 將歌曲加入播放清單
+        function addToPlaylist(SongID, PlaylistID) {
+            
+            $.ajax({
+                type: 'POST', 
+                url: '/addToPlaylist',
+                data: JSON.stringify({SongID: SongID, PlaylistID: PlaylistID}),
+                contentType: 'application/json',
+                success: function(response) {
+
+                    var toastElList = [].slice.call(document.querySelectorAll('.toast'))         
+                    var toastList = toastElList.map(function(toastEl) {
+                        return new bootstrap.Toast(toastEl)
+                    })
+
+                    if (response == 'success') {
+                        
+                        toastList[0].show();
+ 
+                        setTimeout(function() {          
+                            toastList[0].hide();
+                        }, 1000);
+                       
+                    }
+                    else {
+                        toastList[1].show();
+                        setTimeout(function() {
+                            toastList[1].hide();
+                        }, 1000);
+                    }
+                    
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            })
+        }
         
     </script>
 </html>

@@ -10,16 +10,28 @@ import time
 
 def get_songs_data(songlist):
     song_query = []
-    for s in songlist:
-        song = Song.query.filter_by(SongID=s.SongID).first()
-        song_data = to_dict(song)
-        artist = Artist.query.filter_by(SongID=s.SongID)
-        song_data['Artist'] = artist[0].Name
-        for art in artist[1:]:
-            song_data['Artist'] += f', {art.Name}'
-        song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
-        song_query.append(song_data)
-    return song_query
+    if isinstance(songlist[0], Song):
+        for s in songlist:
+            song = Song.query.filter_by(SongID=s.SongID).first()
+            song_data = to_dict(song)
+            artist = Artist.query.filter_by(SongID=s.SongID)
+            song_data['Artist'] = artist[0].Name
+            for art in artist[1:]:
+                song_data['Artist'] += f', {art.Name}'
+            song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
+            song_query.append(song_data)
+        return song_query
+    else:
+        for s in songlist:
+            song = Song.query.filter_by(SongID=s[0].SongID).first()
+            song_data = to_dict(song)
+            artist = Artist.query.filter_by(SongID=s[0].SongID)
+            song_data['Artist'] = artist[0].Name
+            for art in artist[1:]:
+                song_data['Artist'] += f', {art.Name}'
+            song_data['Duration'] = time.strftime('%M:%S', time.gmtime(song_data['Duration']) )
+            song_query.append(song_data)
+        return song_query
 
 def to_dict(self):
     return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -61,9 +73,30 @@ def search_song(db : SQLAlchemy, kw):
         song_query.append(song_data)
     return song_query
 
-def get_topN_famous_song(db : SQLAlchemy, n):
+def get_topN_famous_song(n):
     songs = Song.query.order_by((Song.PFemale + Song.PMale).desc()).limit(n).all()
     return get_songs_data(songs)
+
+def get_topN_famous_album(n):
+    songs = []
+    albums = db.session.query(Song.Album, db.func.sum(Song.PFemale + Song.PMale)).group_by(Song.Album).order_by(db.func.sum(Song.PFemale + Song.PMale).desc()).limit(n)
+    for it in albums:
+        # it[0] is Album name, it[1] is Pcount
+        song_list = Song.query.filter(Song.Album == it[0]).all()
+        songs.append(get_songs_data(song_list))
+        
+    return songs, [it[1] for it in albums]
+
+def get_topN_famous_artist(n):
+    songs = []
+    S_join_A = db.session.query(Song, Artist).join(Artist, Artist.SongID == Song.SongID)
+    artists = db.session.query(Artist.Name, db.func.sum(Song.PFemale + Song.PMale)).join(Artist, Artist.SongID == Song.SongID).group_by(Artist.Name).order_by(db.func.sum(Song.PFemale + Song.PMale).desc()).limit(n).all()
+    for artist in artists:
+        # artist[0] is Artist name, artist[1] is Pcount
+        songlist = S_join_A.filter(Artist.Name == artist[0]).all()
+        songs.append(get_songs_data(songlist))
+    
+    return songs, [it[1] for it in artists]
 
 def add_user(db : SQLAlchemy, username, password, Gender):
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
